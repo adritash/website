@@ -193,49 +193,55 @@ export async function POST(request: Request) {
     const safeMessageHtml = escapeHtml(message).replace(/\n/g, "<br>");
     const plainTextMessage = message;
 
-    await resend.emails.send({
-      from: "Adritash <contact@adritash.com>",
-      to: "drajguru28@gmail.com",
-      replyTo: email,
-      subject: `[Website] ${safeSubject}`,
-      text: [
-        "New Contact Form Submission",
-        `Name: ${name}`,
-        `Email: ${email}`,
-        "",
-        "Message:",
-        plainTextMessage,
-      ].join("\n"),
-      html: `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${safeName}</p>
-        <p><strong>Email:</strong> ${safeEmail}</p>
-        <hr>
-        <p><strong>Message:</strong></p>
-        <p>${safeMessageHtml}</p>
-      `,
-    });
+    const [notificationResult, confirmationResult] = await Promise.all([
+      resend.emails.send({
+        from: "Adritash <contact@adritash.com>",
+        to: "drajguru28@gmail.com",
+        replyTo: email,
+        subject: `[Website] ${safeSubject}`,
+        text: [
+          "New Contact Form Submission",
+          `Name: ${name}`,
+          `Email: ${email}`,
+          "",
+          "Message:",
+          plainTextMessage,
+        ].join("\n"),
+        html: `
+          <h2>New Contact Form Submission</h2>
+          <p><strong>Name:</strong> ${safeName}</p>
+          <p><strong>Email:</strong> ${safeEmail}</p>
+          <hr>
+          <p><strong>Message:</strong></p>
+          <p>${safeMessageHtml}</p>
+        `,
+      }),
+      resend.emails.send({
+        from: "Adritash <contact@adritash.com>",
+        to: email,
+        subject: "Thank you for contacting Adritash",
+        text: [
+          `Hi ${name},`,
+          "",
+          "Thank you for reaching out through my website.",
+          "I have received your message and will get back to you as soon as possible.",
+          "",
+          "Regards,",
+          "Dwaipayan Rajguru",
+        ].join("\n"),
+        html: `
+          <h2>Hi ${safeName},</h2>
+          <p>Thank you for reaching out through my website.</p>
+          <p>I have received your message and will get back to you as soon as possible.</p>
+          <p>Regards,<br> Dwaipayan Rajguru</p>
+        `,
+      }),
+    ]);
 
-    await resend.emails.send({
-      from: "Adritash <contact@adritash.com>",
-      to: email,
-      subject: "Thank you for contacting Adritash",
-      text: [
-        `Hi ${name},`,
-        "",
-        "Thank you for reaching out through my website.",
-        "I have received your message and will get back to you as soon as possible.",
-        "",
-        "Regards,",
-        "Dwaipayan Rajguru",
-      ].join("\n"),
-      html: `
-        <h2>Hi ${safeName},</h2>
-        <p>Thank you for reaching out through my website.</p>
-        <p>I have received your message and will get back to you as soon as possible.</p>
-        <p>Regards,<br> Dwaipayan Rajguru</p>
-      `,
-    });
+    if (notificationResult.error || confirmationResult.error) {
+      console.error("Resend error:", notificationResult.error ?? confirmationResult.error);
+      return jsonError("Unable to send email.", 500);
+    }
 
     return NextResponse.json({
       success: true,
