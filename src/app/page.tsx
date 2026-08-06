@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import DataFlowBanner from "@/components/sections/DataFlowBanner";
 import ProjectCard from "@/components/sections/ProjectCard";
 import AnimatedStat from "@/components/ui/AnimatedStat";
 import Button from "@/components/ui/Button";
@@ -27,6 +28,8 @@ export default function HomePage() {
 
   return (
     <>
+      <DataFlowBanner />
+
       <section className="relative overflow-hidden border-b border-border">
         <div
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.1),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.2),transparent_60%)]"

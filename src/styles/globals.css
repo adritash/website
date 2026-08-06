@@ -120,3 +120,105 @@ body {
 .stat-animate {
   animation: count-up 0.6s ease-out forwards;
 }
+
+@keyframes data-flow-dash {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+@keyframes data-flow-scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes data-flow-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes data-flow-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.data-flow-line {
+  animation: data-flow-dash 1.5s linear infinite;
+}
+
+.data-flow-line-delay-1 {
+  animation-delay: 0.5s;
+}
+
+.data-flow-line-delay-2 {
+  animation-delay: 1s;
+}
+
+.data-flow-scan {
+  animation: data-flow-scan 3s ease-in-out infinite;
+}
+
+.data-flow-pulse {
+  animation: data-flow-pulse 2s ease-in-out infinite;
+}
+
+.data-flow-card {
+  animation: data-flow-card-in 0.6s ease-out forwards;
+}
+
+.data-flow-card-delay-0 {
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+.data-flow-card-delay-1 {
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.data-flow-card-delay-2 {
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+.data-flow-card-delay-3 {
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+.data-flow-dot {
+  animation: data-flow-pulse 1.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .data-flow-line,
+  .data-flow-scan,
+  .data-flow-pulse,
+  .data-flow-card,
+  .data-flow-dot {
+    animation: none;
+  }
+
+  .data-flow-card {
+    opacity: 1;
+  }
+
+  .data-flow-particle {
+    display: none;
+  }
+}
