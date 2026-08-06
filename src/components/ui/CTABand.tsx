@@ -12,7 +12,7 @@ type CTABandProps = {
 };
 
 const variants = {
-  light: "bg-brand-light border border-indigo-100 dark:border-indigo-900",
+  light: "bg-brand-light border border-border",
   brand: "bg-brand text-white",
   dark: "bg-surface-dark text-white",
 };
@@ -42,7 +42,7 @@ export default function CTABand({
             {description && (
               <p
                 className={`mt-3 text-base leading-relaxed ${
-                  isDark ? "text-indigo-100" : "text-muted"
+                  isDark ? "text-white/90" : "text-muted"
                 }`}
               >
                 {description}

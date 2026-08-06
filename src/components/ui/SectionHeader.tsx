@@ -20,7 +20,7 @@ export default function SectionHeader({
       {eyebrow && (
         <p
           className={`mb-3 text-sm font-semibold uppercase tracking-widest ${
-            dark ? "text-indigo-300" : "text-brand"
+            dark ? "text-brand-light" : "text-brand"
           }`}
         >
           {eyebrow}
@@ -36,7 +36,7 @@ export default function SectionHeader({
       {description && (
         <p
           className={`mt-4 text-base leading-relaxed sm:text-lg ${
-            dark ? "text-slate-300" : "text-muted"
+            dark ? "text-white/80" : "text-muted"
           }`}
         >
           {description}

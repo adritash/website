@@ -8,7 +8,7 @@ type ProjectCardProps = {
 
 export default function ProjectCard({ project, featured = false }: ProjectCardProps) {
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface-elevated shadow-sm transition-all hover:border-indigo-200 hover:shadow-md dark:hover:border-indigo-800">
+    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface-elevated shadow-sm transition-all hover:border-brand/40 hover:shadow-md">
       <div className="border-b border-border bg-surface px-6 py-5">
         <p className="text-xs font-semibold uppercase tracking-widest text-brand">
           {project.industry}

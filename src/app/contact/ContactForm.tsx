@@ -35,7 +35,7 @@ const contactDetails = [
 ];
 
 const inputClass =
-  "w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring";
+  "w-full rounded-lg border border-border bg-surface-elevated px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-brand focus:outline-none focus:ring-2 focus:ring-ring";
 
 export default function ContactForm() {
   const [loading, setLoading] = useState(false);
@@ -100,7 +100,7 @@ export default function ContactForm() {
       <Section background="white">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">
+            <h2 className="text-2xl font-bold text-foreground">
               Start a conversation
             </h2>
             <p className="mt-4 leading-relaxed text-muted">
@@ -127,7 +127,7 @@ export default function ContactForm() {
                         <p className="text-xs font-semibold uppercase tracking-widest text-muted">
                           {item.label}
                         </p>
-                        <p className="mt-0.5 text-sm font-medium text-slate-900">
+                        <p className="mt-0.5 text-sm font-medium text-foreground">
                           {item.value}
                         </p>
                       </div>
@@ -139,11 +139,11 @@ export default function ContactForm() {
 
             <dl className="mt-8 space-y-4 text-sm text-muted">
               <div>
-                <dt className="font-semibold text-slate-900">Response time</dt>
+                <dt className="font-semibold text-foreground">Response time</dt>
                 <dd>Within 24 hours on business days</dd>
               </div>
               <div>
-                <dt className="font-semibold text-slate-900">Availability</dt>
+                <dt className="font-semibold text-foreground">Availability</dt>
                 <dd>Open to new projects — let&apos;s align on timing</dd>
               </div>
             </dl>
@@ -170,7 +170,7 @@ export default function ContactForm() {
               <div>
                 <label
                   htmlFor="name"
-                  className="mb-1 block text-sm font-medium text-slate-700"
+                  className="mb-1 block text-sm font-medium text-foreground"
                 >
                   Name <span className="text-red-600" aria-hidden="true">*</span>
                 </label>
@@ -188,7 +188,7 @@ export default function ContactForm() {
               <div>
                 <label
                   htmlFor="email"
-                  className="mb-1 block text-sm font-medium text-slate-700"
+                  className="mb-1 block text-sm font-medium text-foreground"
                 >
                   Email <span className="text-red-600" aria-hidden="true">*</span>
                 </label>
@@ -208,7 +208,7 @@ export default function ContactForm() {
             <div>
               <label
                 htmlFor="subject"
-                className="mb-1 block text-sm font-medium text-slate-700"
+                className="mb-1 block text-sm font-medium text-foreground"
               >
                 Subject <span className="text-red-600" aria-hidden="true">*</span>
               </label>
@@ -226,7 +226,7 @@ export default function ContactForm() {
             <div>
               <label
                 htmlFor="message"
-                className="mb-1 block text-sm font-medium text-slate-700"
+                className="mb-1 block text-sm font-medium text-foreground"
               >
                 Message <span className="text-red-600" aria-hidden="true">*</span>
               </label>

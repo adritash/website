@@ -15,7 +15,7 @@ export default function Card({
     <div
       className={`rounded-2xl border border-border bg-surface-elevated p-6 sm:p-7 ${
         hover
-          ? "transition-all hover:border-indigo-200 hover:shadow-md dark:hover:border-indigo-800"
+          ? "transition-all hover:border-brand/40 hover:shadow-md"
           : ""
       } ${className}`}
     >

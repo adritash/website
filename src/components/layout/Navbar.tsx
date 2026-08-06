@@ -26,7 +26,7 @@ export default function Navbar() {
           className="flex min-w-0 items-center gap-3 rounded-lg leading-none"
           aria-label={`${profile.name} home`}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-indigo-800 text-xs font-bold text-white">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-brand-dark text-xs font-bold text-white">
             {profile.initials}
           </div>
           <div className="min-w-0 hidden sm:block">

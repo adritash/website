@@ -10,7 +10,7 @@ export default function PageHero({ eyebrow, title, description }: PageHeroProps)
   return (
     <section className="relative overflow-hidden border-b border-border bg-surface py-16 sm:py-20 lg:py-24">
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.15),transparent_50%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(128,0,32,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(224,122,138,0.15),transparent_50%)]"
         aria-hidden="true"
       />
       <Container className="relative">

@@ -18,14 +18,14 @@ export default function DataFlowBanner() {
       aria-label="Architecture data flow showcase"
     >
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.15),transparent_70%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(128,0,32,0.25),transparent_70%)]"
         aria-hidden="true"
       />
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.07] dark:opacity-[0.12]"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(129,140,248,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(129,140,248,0.5) 1px, transparent 1px)",
+            "linear-gradient(rgba(201,123,139,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(201,123,139,0.5) 1px, transparent 1px)",
           backgroundSize: "32px 32px",
         }}
         aria-hidden="true"
@@ -33,12 +33,12 @@ export default function DataFlowBanner() {
 
       <div className="relative mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
         <div className="mb-4 flex flex-col items-center justify-between gap-2 sm:flex-row">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300 sm:text-left">
+          <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-white/80 sm:text-left">
             End-to-end cloud architectures · live data flows
           </p>
           <Link
             href="/architecture"
-            className="text-xs font-semibold text-indigo-300 transition-colors hover:text-white"
+            className="text-xs font-semibold text-white/80 transition-colors hover:text-white"
           >
             Explore all →
           </Link>
@@ -53,9 +53,9 @@ export default function DataFlowBanner() {
           >
             <defs>
               <linearGradient id="flowLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
-                <stop offset="50%" stopColor="#818cf8" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
+                <stop offset="0%" stopColor="#e07a8a" stopOpacity="0.2" />
+                <stop offset="50%" stopColor="#e07a8a" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#e07a8a" stopOpacity="0.2" />
               </linearGradient>
             </defs>
 
@@ -84,10 +84,10 @@ export default function DataFlowBanner() {
               className="data-flow-line data-flow-line-delay-2"
             />
 
-            <circle r="5" fill="#a5b4fc" className="data-flow-pulse data-flow-particle">
+            <circle r="5" fill="#e07a8a" className="data-flow-pulse data-flow-particle">
               <animateMotion dur="4s" repeatCount="indefinite" path="M 140 100 L 360 100" />
             </circle>
-            <circle r="4" fill="#c7d2fe" className="data-flow-pulse data-flow-particle">
+            <circle r="4" fill="#f5c0c8" className="data-flow-pulse data-flow-particle">
               <animateMotion
                 dur="4s"
                 repeatCount="indefinite"
@@ -95,7 +95,7 @@ export default function DataFlowBanner() {
                 path="M 390 100 L 610 100"
               />
             </circle>
-            <circle r="5" fill="#a5b4fc" className="data-flow-pulse data-flow-particle">
+            <circle r="5" fill="#e07a8a" className="data-flow-pulse data-flow-particle">
               <animateMotion
                 dur="4s"
                 repeatCount="indefinite"
@@ -118,7 +118,7 @@ export default function DataFlowBanner() {
               <Link
                 key={arch.id}
                 href="/architecture"
-                className={`data-flow-card group relative overflow-hidden rounded-xl border border-indigo-500/25 bg-slate-900/50 shadow-lg transition-all hover:border-indigo-400/50 hover:shadow-indigo-500/10 data-flow-card-delay-${index}`}
+                className={`data-flow-card group relative overflow-hidden rounded-xl border border-brand/30 bg-black/30 shadow-lg transition-all hover:border-brand/50 hover:shadow-brand/10 data-flow-card-delay-${index}`}
               >
                 <div className="relative aspect-[16/10] w-full">
                   {arch.diagramImage && (
@@ -131,8 +131,8 @@ export default function DataFlowBanner() {
                       priority={index < 2}
                     />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-                  <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-indigo-400 to-transparent opacity-60 data-flow-scan" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-surface-dark via-surface-dark/40 to-transparent" />
+                  <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-brand to-transparent opacity-60 data-flow-scan" />
                   <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:p-3">
                     <span
                       className={`inline-flex rounded px-1.5 py-0.5 text-[10px] font-bold ${cloudBadgeStyles[arch.cloud]}`}
@@ -149,10 +149,10 @@ export default function DataFlowBanner() {
           </div>
 
           <div className="mt-3 flex items-center justify-center gap-2 sm:hidden" aria-hidden="true">
-            <span className="data-flow-dot h-1.5 w-1.5 rounded-full bg-indigo-400" />
-            <span className="data-flow-dot data-flow-line-delay-1 h-1.5 w-1.5 rounded-full bg-indigo-400" />
-            <span className="data-flow-dot data-flow-line-delay-2 h-1.5 w-1.5 rounded-full bg-indigo-400" />
-            <span className="text-[10px] font-medium uppercase tracking-wider text-indigo-300">
+            <span className="data-flow-dot h-1.5 w-1.5 rounded-full bg-brand" />
+            <span className="data-flow-dot data-flow-line-delay-1 h-1.5 w-1.5 rounded-full bg-brand" />
+            <span className="data-flow-dot data-flow-line-delay-2 h-1.5 w-1.5 rounded-full bg-brand" />
+            <span className="text-[10px] font-medium uppercase tracking-wider text-white/80">
               Data flowing →
             </span>
           </div>

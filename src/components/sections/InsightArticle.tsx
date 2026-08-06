@@ -23,7 +23,7 @@ export function InsightArticle({
     <>
       <PageHero eyebrow={tag} title={title} description={description} />
       <Section background="white">
-        <article className="max-w-3xl space-y-6 text-base leading-relaxed text-muted [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-slate-900 [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-slate-900 [&_li]:ml-5 [&_li]:list-disc [&_p]:text-muted [&_ul]:space-y-2">
+        <article className="max-w-3xl space-y-6 text-base leading-relaxed text-muted [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-foreground [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground [&_li]:ml-5 [&_li]:list-disc [&_p]:text-muted [&_ul]:space-y-2">
           <p className="text-sm text-muted">
             <time dateTime={date}>{date}</time>
           </p>

@@ -32,7 +32,7 @@ export default function HomePage() {
 
       <section className="relative overflow-hidden border-b border-border">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.1),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.2),transparent_60%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(128,0,32,0.12),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(224,122,138,0.18),transparent_60%)]"
           aria-hidden="true"
         />
         <Container className="relative py-16 sm:py-20 lg:py-28">
@@ -160,7 +160,7 @@ export default function HomePage() {
           {blogPosts.map((post) => (
             <article
               key={post.slug}
-              className="rounded-2xl border border-border bg-surface-elevated p-6 shadow-sm transition-all hover:border-indigo-200 hover:shadow-md dark:hover:border-indigo-800"
+              className="rounded-2xl border border-border bg-surface-elevated p-6 shadow-sm transition-all hover:border-brand/40 hover:shadow-md"
             >
               <Badge variant="brand">{post.tag}</Badge>
               <h3 className="mt-3 text-lg font-semibold text-foreground">
@@ -185,7 +185,7 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold text-white sm:text-4xl">
             Let&apos;s connect
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-indigo-100">
+          <p className="mx-auto mt-4 max-w-xl text-white/90">
             Open to senior architecture, programme leadership, and consulting roles.
             Happy to start with a conversation.
           </p>
@@ -197,7 +197,7 @@ export default function HomePage() {
               href="/resume"
               variant="ghost"
               size="lg"
-              className="border-indigo-300 text-white hover:border-white hover:text-white"
+              className="border-white/40 text-white hover:border-white hover:text-white"
             >
               View Resume
             </Button>
