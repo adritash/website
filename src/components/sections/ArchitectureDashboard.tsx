@@ -37,7 +37,7 @@ export default function ArchitectureDashboard({
 
   return (
     <div className="space-y-10">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {items.map((arch) => {
           const isSelected = selectedId === arch.id;
           return (
@@ -140,8 +140,8 @@ export default function ArchitectureDashboard({
                         selected.diagramAlt ??
                         `${selected.title} architecture diagram`
                       }
-                      width={1536}
-                      height={1024}
+                      width={selected.diagramWidth ?? 1536}
+                      height={selected.diagramHeight ?? 1024}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1152px"
                       className="h-auto w-full"
                     />

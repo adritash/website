@@ -8,7 +8,7 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata: Metadata = createPageMetadata({
   title: "Reference Architectures",
   description:
-    "End-to-end cloud reference architectures for FinTech billing, financial reporting, AI stock monitoring agents, and ledger validation — on AWS and GCP.",
+    "End-to-end cloud reference architectures — FinTech, AI automation, HR workflows, procurement, and enterprise operations on AWS and GCP.",
   path: "/architecture",
 });
 

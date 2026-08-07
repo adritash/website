@@ -205,13 +205,83 @@ body {
   animation: data-flow-pulse 1.5s ease-in-out infinite;
 }
 
+@keyframes data-flow-marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes data-flow-marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.data-flow-marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.data-flow-marquee-left {
+  animation: data-flow-marquee-left 70s linear infinite;
+}
+
+.data-flow-marquee-right {
+  animation: data-flow-marquee-right 55s linear infinite;
+}
+
+.data-flow-marquee-slow {
+  animation-duration: 90s;
+}
+
+.data-flow-marquee-fast {
+  animation-duration: 45s;
+}
+
+.data-flow-marquee-track.is-paused,
+.data-flow-banner.is-paused .data-flow-marquee-track {
+  animation-play-state: paused;
+}
+
+.data-flow-banner.is-paused .data-flow-scan,
+.data-flow-banner.is-paused .data-flow-dot,
+.data-flow-banner.is-paused .data-flow-line,
+.data-flow-banner.is-paused .data-flow-pulse {
+  animation-play-state: paused;
+}
+
+.data-flow-pill-arrow {
+  animation: data-flow-pulse 2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .data-flow-line,
   .data-flow-scan,
   .data-flow-pulse,
   .data-flow-card,
-  .data-flow-dot {
+  .data-flow-dot,
+  .data-flow-marquee-left,
+  .data-flow-marquee-right,
+  .data-flow-pill-arrow {
     animation: none;
+  }
+
+  .data-flow-marquee-track {
+    transform: none;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .data-flow-marquee > .data-flow-marquee-track > div:last-child {
+    display: none;
   }
 
   .data-flow-card {
