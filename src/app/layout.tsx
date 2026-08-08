@@ -5,6 +5,7 @@ import "@/styles/globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SkipLink from "@/components/ui/SkipLink";
+import ChatWidget from "@/components/ai/ChatWidget";
 import { certifications } from "@/lib/data/certifications";
 import { profile } from "@/lib/data/profile";
 import { skillCategories } from "@/lib/data/skills";
@@ -116,6 +117,7 @@ export default async function RootLayout({
           {children}
         </main>
         <Footer />
+        <ChatWidget />
       </body>
     </html>
   );

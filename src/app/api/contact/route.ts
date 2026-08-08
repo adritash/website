@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { applyRateLimit } from "@/lib/rate-limit";
+import { contact } from "@/lib/site";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
@@ -196,7 +197,7 @@ export async function POST(request: Request) {
     const [notificationResult, confirmationResult] = await Promise.all([
       resend.emails.send({
         from: "Adritash <contact@adritash.com>",
-        to: "drajguru28@gmail.com",
+        to: process.env.CONTACT_EMAIL ?? contact.email,
         replyTo: email,
         subject: `[Website] ${safeSubject}`,
         text: [
