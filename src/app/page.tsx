@@ -35,7 +35,7 @@ export default function HomePage() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(128,0,32,0.12),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(224,122,138,0.18),transparent_60%)]"
           aria-hidden="true"
         />
-        <Container className="relative py-16 sm:py-20 lg:py-28">
+        <Container className="relative pt-8 pb-16 sm:pt-10 sm:pb-20 lg:pt-12 lg:pb-28">
           <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[1fr_auto] lg:gap-16">
             <div>
               <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand">

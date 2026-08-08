@@ -30,27 +30,27 @@ function ArchitectureFlowCard({ arch, onHoverStart, onHoverEnd }: ArchitectureFl
       onMouseLeave={onHoverEnd}
       onFocus={onHoverStart}
       onBlur={onHoverEnd}
-      className="group relative w-44 shrink-0 overflow-hidden rounded-lg border border-brand/30 bg-black/30 shadow-md transition-all hover:z-10 hover:scale-[1.03] hover:border-brand/60 sm:w-52"
+      className="group relative w-72 shrink-0 overflow-hidden rounded-xl border border-brand/40 bg-[#1a0a0e] shadow-lg ring-1 ring-white/10 transition-all hover:z-10 hover:scale-[1.02] hover:border-brand/70 hover:ring-brand/30 sm:w-80 lg:w-[26rem]"
     >
-      <div className="relative aspect-[16/10] w-full">
+      <div className="relative aspect-[16/10] w-full bg-[#1f1014]">
         {arch.diagramImage && (
           <Image
             src={arch.diagramImage}
-            alt=""
+            alt={arch.diagramAlt ?? `${arch.title} architecture diagram`}
             fill
-            sizes="208px"
-            className="object-cover object-center opacity-75 transition-opacity duration-500 group-hover:opacity-95"
+            quality={92}
+            sizes="(max-width: 640px) 288px, (max-width: 1024px) 320px, 416px"
+            className="object-contain object-center p-1 transition-transform duration-500 group-hover:scale-[1.02]"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-surface-dark via-surface-dark/30 to-transparent" />
-        <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-brand to-transparent opacity-60 data-flow-scan" />
-        <div className="absolute bottom-0 left-0 right-0 p-2">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/50 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 border-t border-white/10 bg-black/40 p-3 backdrop-blur-sm sm:p-3.5">
           <span
-            className={`inline-flex rounded px-1 py-0.5 text-[9px] font-bold ${cloudBadgeStyles[arch.cloud]}`}
+            className={`inline-flex rounded px-2 py-0.5 text-xs font-bold shadow-sm ${cloudBadgeStyles[arch.cloud]}`}
           >
             {arch.cloud}
           </span>
-          <p className="mt-0.5 line-clamp-1 text-[11px] font-semibold leading-tight text-white sm:text-xs">
+          <p className="mt-1.5 line-clamp-1 text-sm font-semibold leading-tight text-white drop-shadow-sm sm:text-base">
             {arch.title}
           </p>
         </div>
@@ -77,30 +77,30 @@ export default function DataFlowBanner() {
 
   return (
     <section
-      className={`data-flow-banner relative overflow-hidden border-b border-border bg-surface-dark py-3 sm:py-4 ${
+      className={`data-flow-banner relative overflow-hidden border-b border-border bg-surface-dark pt-5 pb-2 sm:pt-7 sm:pb-2 ${
         paused ? "is-paused" : ""
       }`}
       aria-label="Architecture data flow showcase"
     >
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(128,0,32,0.2),transparent_70%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(128,0,32,0.12),transparent_70%)]"
         aria-hidden="true"
       />
 
       <div className="relative">
-        <div className="mx-auto mb-2 flex max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/70 sm:text-xs">
+        <div className="mx-auto mb-3 flex max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/90 sm:text-sm">
             Live data flows
           </p>
           <div className="flex items-center gap-2">
             {paused && (
-              <span className="text-[10px] font-medium uppercase tracking-wider text-brand">
+              <span className="text-xs font-medium uppercase tracking-wider text-brand-light">
                 Paused
               </span>
             )}
             <Link
               href="/architecture"
-              className="text-[10px] font-semibold text-white/70 transition-colors hover:text-white sm:text-xs"
+              className="text-xs font-semibold text-white/90 transition-colors hover:text-white sm:text-sm"
             >
               Explore →
             </Link>
@@ -108,7 +108,7 @@ export default function DataFlowBanner() {
         </div>
 
         <div
-          className="data-flow-marquee w-full overflow-hidden border-y border-brand/20"
+          className="data-flow-marquee w-full overflow-hidden border-y border-brand/30 bg-black/20"
           aria-label="Architecture diagrams scrolling"
         >
           <div
@@ -116,7 +116,7 @@ export default function DataFlowBanner() {
               paused ? "is-paused" : ""
             }`}
           >
-            <div className="flex shrink-0 items-center gap-3 pr-3">
+            <div className="flex shrink-0 items-center gap-5 pr-5">
               {marqueeItems.map((arch, index) => (
                 <ArchitectureFlowCard
                   key={`a-${arch.id}-${index}`}
@@ -126,7 +126,7 @@ export default function DataFlowBanner() {
                 />
               ))}
             </div>
-            <div className="flex shrink-0 items-center gap-3 pr-3" aria-hidden="true">
+            <div className="flex shrink-0 items-center gap-5 pr-5" aria-hidden="true">
               {marqueeItems.map((arch, index) => (
                 <ArchitectureFlowCard
                   key={`b-${arch.id}-${index}`}
@@ -139,7 +139,7 @@ export default function DataFlowBanner() {
           </div>
         </div>
 
-        <p className="mt-2 text-center text-[10px] text-white/50">
+        <p className="mt-1.5 text-center text-xs text-white/70">
           Hover a card to pause
         </p>
       </div>
