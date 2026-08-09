@@ -2,11 +2,19 @@ export type ChatRole = "user" | "assistant";
 
 export type ChatMessageStatus = "complete" | "streaming" | "error";
 
+export type ChatSource = {
+  title: string;
+  type?: string;
+  url?: string;
+};
+
 export type ChatMessage = {
   id: string;
   role: ChatRole;
   content: string;
   status?: ChatMessageStatus;
+  sources?: ChatSource[];
+  grounded?: boolean;
 };
 
 export function createMessageId(): string {

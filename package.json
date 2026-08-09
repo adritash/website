@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "knowledge:create-store": "tsx scripts/knowledge-ingest.ts create-store",
+    "knowledge:ingest": "tsx scripts/knowledge-ingest.ts ingest",
+    "knowledge:status": "tsx scripts/knowledge-ingest.ts status",
+    "test:ai": "tsx scripts/ai-chat-tests.ts",
+    "test:ai:live": "tsx scripts/ai-chat-tests.ts --live"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.7.1",
@@ -21,9 +26,11 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

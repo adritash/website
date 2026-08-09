@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  INTERACTION_ID_PATTERN,
   AI_RATE_LIMIT_MAX_REQUESTS,
   AI_RATE_LIMIT_WINDOW_MS,
-  MAX_CHAT_MESSAGE_LENGTH,
-  MAX_INTERACTION_ID_LENGTH,
 } from "@/lib/ai/config";
 import {
   classifyGeminiError,
   createChatCompletion,
+  getClientErrorMessage,
   streamChatCompletion,
   type ChatStreamChunk,
 } from "@/lib/ai/chat-service";
+import {
+  isFileSearchConfigured,
+} from "@/lib/ai/knowledge/file-search";
+import {
+  isLikelyPromptInjection,
+  validateChatRequest,
+  type ChatRequestBody,
+} from "@/lib/ai/request-validation";
 import { applyRateLimit } from "@/lib/rate-limit";
 
 const GENERIC_ERROR =
   "I'm having trouble processing your request right now. Please try again.";
 const RATE_LIMIT_ERROR = "Too many requests. Please try again shortly.";
-
-type ChatRequestBody = {
-  message?: unknown;
-  previousInteractionId?: unknown;
-  stream?: unknown;
-};
 
 function getClientIp(request: NextRequest): string {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -35,68 +35,6 @@ function getClientIp(request: NextRequest): string {
 
 function jsonError(message: string, status: number, headers?: HeadersInit) {
   return NextResponse.json({ error: message }, { status, headers });
-}
-
-function validateChatRequest(body: ChatRequestBody):
-  | { ok: false; error: string }
-  | {
-      ok: true;
-      data: {
-        message: string;
-        previousInteractionId?: string;
-        stream: boolean;
-      };
-    } {
-  const message = body.message;
-
-  if (typeof message !== "string") {
-    return { ok: false, error: "Message is required." };
-  }
-
-  const trimmedMessage = message.trim();
-
-  if (!trimmedMessage) {
-    return { ok: false, error: "Message cannot be empty." };
-  }
-
-  if (trimmedMessage.length > MAX_CHAT_MESSAGE_LENGTH) {
-    return {
-      ok: false,
-      error: `Message is too long. Maximum ${MAX_CHAT_MESSAGE_LENGTH} characters.`,
-    };
-  }
-
-  let previousInteractionId: string | undefined;
-
-  if (body.previousInteractionId !== undefined && body.previousInteractionId !== null) {
-    if (typeof body.previousInteractionId !== "string") {
-      return { ok: false, error: "Invalid conversation identifier." };
-    }
-
-    const trimmedId = body.previousInteractionId.trim();
-
-    if (!trimmedId) {
-      return { ok: false, error: "Invalid conversation identifier." };
-    }
-
-    if (
-      trimmedId.length > MAX_INTERACTION_ID_LENGTH ||
-      !INTERACTION_ID_PATTERN.test(trimmedId)
-    ) {
-      return { ok: false, error: "Invalid conversation identifier." };
-    }
-
-    previousInteractionId = trimmedId;
-  }
-
-  return {
-    ok: true,
-    data: {
-      message: trimmedMessage,
-      previousInteractionId,
-      stream: body.stream === true,
-    },
-  };
 }
 
 function createSseStream(generator: AsyncGenerator<ChatStreamChunk>) {
@@ -112,13 +50,15 @@ function createSseStream(generator: AsyncGenerator<ChatStreamChunk>) {
         }
         controller.close();
       } catch (error) {
+        const clientMessage = getClientErrorMessage(error);
+
         if (process.env.NODE_ENV === "development") {
           console.error("[ai/chat] stream error", error);
         }
 
         controller.enqueue(
           encoder.encode(
-            `data: ${JSON.stringify({ type: "error", message: GENERIC_ERROR })}\n\n`
+            `data: ${JSON.stringify({ type: "error", message: clientMessage })}\n\n`
           )
         );
         controller.close();
@@ -142,6 +82,23 @@ export async function POST(request: NextRequest) {
   }
 
   const { message, previousInteractionId, stream } = validation.data;
+
+  if (process.env.NODE_ENV === "development") {
+    console.info("[ai/chat] request received", {
+      stream,
+      messageLength: message.length,
+      hasPreviousInteractionId: Boolean(previousInteractionId),
+      geminiApiKeyConfigured: Boolean(process.env.GEMINI_API_KEY?.trim()),
+      fileSearchStoreConfigured: isFileSearchConfigured(),
+    });
+  }
+
+  if (isLikelyPromptInjection(message)) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[ai/chat] Possible prompt injection attempt blocked");
+    }
+  }
+
   const clientIp = getClientIp(request);
 
   const rateLimit = await applyRateLimit({
@@ -176,6 +133,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       reply: result.reply,
       interactionId: result.interactionId,
+      sources: result.sources,
+      grounded: result.grounded,
     });
   } catch (error) {
     const classified = classifyGeminiError(error);
@@ -187,9 +146,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (classified.status === 429) {
-      return jsonError(RATE_LIMIT_ERROR, 429);
+      return jsonError(classified.clientMessage ?? RATE_LIMIT_ERROR, 429);
     }
 
-    return jsonError(GENERIC_ERROR, classified.status >= 500 ? 503 : classified.status);
+    return jsonError(
+      classified.clientMessage ?? GENERIC_ERROR,
+      classified.status >= 500 ? 503 : classified.status
+    );
   }
 }

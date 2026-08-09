@@ -1,4 +1,5 @@
 import type { ChatMessage } from "@/lib/ai/types";
+import Link from "next/link";
 
 type ChatMessageProps = {
   message: ChatMessage;
@@ -8,6 +9,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === "user";
   const isError = message.status === "error";
   const isStreaming = message.status === "streaming";
+  const sources = message.sources ?? [];
 
   return (
     <div
@@ -27,6 +29,29 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         <p className="whitespace-pre-wrap break-words">{message.content}</p>
         {isStreaming && (
           <span className="mt-1 inline-block h-4 w-0.5 animate-pulse bg-brand" aria-hidden="true" />
+        )}
+        {!isUser && !isStreaming && sources.length > 0 && (
+          <div className="mt-3 border-t border-border/70 pt-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+              Sources
+            </p>
+            <ul className="mt-1 space-y-1 text-xs text-muted">
+              {sources.map((source) => (
+                <li key={`${source.title}-${source.url ?? "plain"}`}>
+                  {source.url ? (
+                    <Link
+                      href={source.url}
+                      className="text-brand hover:text-brand-dark hover:underline"
+                    >
+                      {source.title}
+                    </Link>
+                  ) : (
+                    <span>{source.title}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>

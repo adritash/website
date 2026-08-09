@@ -8,7 +8,7 @@ import {
   WELCOME_BUBBLE_STORAGE_KEY,
   AI_SESSION_INTERACTION_KEY,
 } from "@/lib/ai/config";
-import { createMessageId, type ChatMessage } from "@/lib/ai/types";
+import { createMessageId, type ChatMessage, type ChatSource } from "@/lib/ai/types";
 import { trackAiEvent } from "@/lib/analytics/ai-events";
 
 const GENERIC_ERROR =
@@ -16,13 +16,24 @@ const GENERIC_ERROR =
 
 type StreamChunk =
   | { type: "token"; text: string }
-  | { type: "complete"; reply: string; interactionId: string }
+  | {
+      type: "complete";
+      reply: string;
+      interactionId: string;
+      sources?: ChatSource[];
+      grounded?: boolean;
+    }
   | { type: "error"; message: string };
 
 async function readSseStream(
   response: Response,
   onToken: (text: string) => void
-): Promise<{ reply: string; interactionId: string }> {
+): Promise<{
+  reply: string;
+  interactionId: string;
+  sources: ChatSource[];
+  grounded?: boolean;
+}> {
   const reader = response.body?.getReader();
   if (!reader) {
     throw new Error("Streaming is not supported in this browser.");
@@ -32,6 +43,8 @@ async function readSseStream(
   let buffer = "";
   let reply = "";
   let interactionId = "";
+  let sources: ChatSource[] = [];
+  let grounded: boolean | undefined;
 
   while (true) {
     const { done, value } = await reader.read();
@@ -58,6 +71,8 @@ async function readSseStream(
       if (payload.type === "complete") {
         reply = payload.reply || reply;
         interactionId = payload.interactionId;
+        sources = payload.sources ?? [];
+        grounded = payload.grounded;
       }
 
       if (payload.type === "error") {
@@ -70,7 +85,12 @@ async function readSseStream(
     throw new Error("Streaming completed without an interaction identifier.");
   }
 
-  return { reply: reply.trim() || GENERIC_ERROR, interactionId };
+  return {
+    reply: reply.trim() || GENERIC_ERROR,
+    interactionId,
+    sources,
+    grounded,
+  };
 }
 
 export default function ChatWidget() {
@@ -203,7 +223,13 @@ export default function ChatWidget() {
           setMessages((prev) =>
             prev.map((entry) =>
               entry.id === assistantMessageId
-                ? { ...entry, content: result.reply, status: "complete" }
+                ? {
+                    ...entry,
+                    content: result.reply,
+                    status: "complete",
+                    sources: result.sources,
+                    grounded: result.grounded,
+                  }
                 : entry
             )
           );
@@ -225,6 +251,8 @@ export default function ChatWidget() {
         const fallbackData = (await fallbackResponse.json()) as {
           reply?: string;
           interactionId?: string;
+          sources?: ChatSource[];
+          grounded?: boolean;
           error?: string;
         };
 
@@ -239,6 +267,8 @@ export default function ChatWidget() {
                   ...entry,
                   content: fallbackData.reply!,
                   status: "complete",
+                  sources: fallbackData.sources ?? [],
+                  grounded: fallbackData.grounded,
                 }
               : entry
           )
