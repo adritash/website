@@ -21,6 +21,9 @@ async function runUnitTests(): Promise<TestResult[]> {
   const { extractSourcesFromInteraction } = await import(
     "../src/lib/ai/knowledge/sources"
   );
+  const { shouldUseFileSearchForMessage } = await import(
+    "../src/lib/ai/knowledge/query-routing"
+  );
 
   const results: TestResult[] = [];
 
@@ -87,6 +90,27 @@ async function runUnitTests(): Promise<TestResult[]> {
     assert(
       "Source metadata handling",
       sources.length === 1 && sources[0]?.title === "Financial Reporting Architecture"
+    )
+  );
+
+  results.push(
+    assert(
+      "General RAG question skips File Search on first turn",
+      shouldUseFileSearchForMessage("What is RAG?") === false
+    )
+  );
+
+  results.push(
+    assert(
+      "Adritash question uses File Search on first turn",
+      shouldUseFileSearchForMessage("What services does Adritash provide?") === true
+    )
+  );
+
+  results.push(
+    assert(
+      "Follow-up uses File Search when interaction continues",
+      shouldUseFileSearchForMessage("What technology was used?", "interaction-123") === true
     )
   );
 

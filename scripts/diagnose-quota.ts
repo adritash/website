@@ -119,10 +119,12 @@ async function main() {
         state?: string;
       }> = [];
 
-      for await (const document of ai.fileSearchStores.documents.list({
+      const pager = await ai.fileSearchStores.documents.list({
         parent: storeName,
         config: { pageSize: 20 },
-      })) {
+      });
+
+      for await (const document of pager) {
         documents.push({
           name: document.name,
           displayName: document.displayName,

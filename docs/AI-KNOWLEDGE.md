@@ -44,6 +44,17 @@ Only documents with `status: "published"` and `visibility: "public"` are ingeste
 
 Copy `.env.example` to `.env.local` and fill in values. Never commit `.env.local`.
 
+### Production (Vercel)
+
+Local `.env.local` is **not** deployed. Add the same server-side variables in Vercel:
+
+1. Vercel project → **Settings** → **Environment Variables**
+2. Add `GEMINI_API_KEY` (required for chat) for **Production** (and Preview if you test there)
+3. Optionally add `GEMINI_FILE_SEARCH_STORE` for RAG grounding
+4. **Redeploy** after saving — env changes do not apply to existing deployments until you redeploy
+
+If chat works on localhost but fails in production with a generic error, check Vercel **Functions** logs for `[ai/chat] GEMINI_API_KEY is not configured`.
+
 ## Create a File Search store
 
 From `website/`:

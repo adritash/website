@@ -1,5 +1,6 @@
 import type { CustomMetadata, UploadToFileSearchStoreOperation } from "@google/genai";
 import { getGeminiClient } from "@/lib/ai/gemini";
+import { FILE_SEARCH_TOP_K } from "@/lib/ai/config";
 import {
   PUBLIC_METADATA_FILTER,
   type KnowledgeDocumentConfig,
@@ -24,7 +25,7 @@ export function buildFileSearchTool() {
     type: "file_search" as const,
     file_search_store_names: [storeName],
     metadata_filter: PUBLIC_METADATA_FILTER,
-    top_k: 8,
+    top_k: FILE_SEARCH_TOP_K,
   };
 }
 

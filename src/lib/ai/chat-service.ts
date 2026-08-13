@@ -1,9 +1,14 @@
-import { GEMINI_MODEL } from "@/lib/ai/config";
+import {
+  GEMINI_MAX_OUTPUT_TOKENS,
+  GEMINI_MODEL,
+  GEMINI_THINKING_LEVEL,
+} from "@/lib/ai/config";
 import { getGeminiClient } from "@/lib/ai/gemini";
 import {
   buildFileSearchTool,
   isFileSearchConfigured,
 } from "@/lib/ai/knowledge/file-search";
+import { shouldUseFileSearchForMessage } from "@/lib/ai/knowledge/query-routing";
 import {
   extractSourcesFromInteraction,
   extractSourcesFromStreamAnnotation,
@@ -119,11 +124,22 @@ function buildInteractionRequest({
     model: GEMINI_MODEL,
     input: message,
     system_instruction: ADRITASH_SYSTEM_PROMPT,
+    generation_config: {
+      max_output_tokens: GEMINI_MAX_OUTPUT_TOKENS,
+      thinking_level: GEMINI_THINKING_LEVEL,
+    },
     ...(fileSearchTool ? { tools: [fileSearchTool] } : {}),
     ...(previousInteractionId
       ? { previous_interaction_id: previousInteractionId }
       : {}),
   };
+}
+
+function resolveFileSearchUsage(
+  message: string,
+  previousInteractionId?: string
+): boolean {
+  return shouldUseFileSearchForMessage(message, previousInteractionId);
 }
 
 function getStreamEventErrorMessage(event: InteractionStreamEvent): string {
@@ -148,10 +164,10 @@ async function createGroundedCompletion({
   previousInteractionId?: string;
 }): Promise<{ interaction: InteractionLike; grounded: boolean }> {
   const gemini = getGeminiClient();
-  const fileSearchConfigured = isFileSearchConfigured();
+  const useFileSearch = resolveFileSearchUsage(message, previousInteractionId);
 
   logChatDebug("Starting non-streaming Gemini request", {
-    fileSearchConfigured,
+    fileSearchEnabled: useFileSearch,
     hasPreviousInteractionId: Boolean(previousInteractionId),
   });
 
@@ -165,7 +181,7 @@ async function createGroundedCompletion({
       stream: false,
     });
 
-  if (!fileSearchConfigured) {
+  if (!useFileSearch) {
     return { interaction: await create(false), grounded: false };
   }
 
@@ -339,19 +355,24 @@ export async function* streamChatCompletion({
   message: string;
   previousInteractionId?: string;
 }): AsyncGenerator<ChatStreamChunk> {
-  const fileSearchConfigured = isFileSearchConfigured();
+  const useFileSearch = resolveFileSearchUsage(message, previousInteractionId);
+
+  logChatDebug("Starting streaming chat completion", {
+    fileSearchEnabled: useFileSearch,
+    hasPreviousInteractionId: Boolean(previousInteractionId),
+  });
 
   try {
     const stream = await openGroundedStream({
       message,
       previousInteractionId,
-      useFileSearch: fileSearchConfigured,
+      useFileSearch,
     });
 
-    yield* consumeInteractionStream(stream, fileSearchConfigured);
+    yield* consumeInteractionStream(stream, useFileSearch);
     return;
   } catch (error) {
-    if (!shouldFallbackWithoutFileSearch(error)) {
+    if (!useFileSearch || !shouldFallbackWithoutFileSearch(error)) {
       throw error;
     }
 
@@ -378,7 +399,12 @@ export function classifyGeminiError(error: unknown): {
   const message = error instanceof Error ? error.message : String(error);
   const normalized = message.toLowerCase();
 
-  if (normalized.includes("api key") || normalized.includes("unauthorized")) {
+  if (
+    normalized.includes("api key") ||
+    normalized.includes("api_key") ||
+    normalized.includes("not configured") ||
+    normalized.includes("unauthorized")
+  ) {
     return { status: 503, logMessage: "Gemini authentication failure" };
   }
 

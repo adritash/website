@@ -83,6 +83,13 @@ export async function POST(request: NextRequest) {
 
   const { message, previousInteractionId, stream } = validation.data;
 
+  if (!process.env.GEMINI_API_KEY?.trim()) {
+    console.error(
+      "[ai/chat] GEMINI_API_KEY is not configured. Add it in your hosting provider's environment variables (e.g. Vercel → Settings → Environment Variables) and redeploy."
+    );
+    return jsonError(GENERIC_ERROR, 503);
+  }
+
   if (process.env.NODE_ENV === "development") {
     console.info("[ai/chat] request received", {
       stream,

@@ -1,5 +1,14 @@
 export const GEMINI_MODEL = "gemini-3.6-flash";
 
+/** Cap response length for faster generation on a public site chatbot. */
+export const GEMINI_MAX_OUTPUT_TOKENS = 1024;
+
+/** Minimize thinking depth for lower time-to-first-token on supported models. */
+export const GEMINI_THINKING_LEVEL = "minimal" as const;
+
+/** Fewer retrieved chunks = faster File Search + generation. */
+export const FILE_SEARCH_TOP_K = 4;
+
 export const MAX_CHAT_MESSAGE_LENGTH = 2000;
 export const MAX_INTERACTION_ID_LENGTH = 128;
 export const INTERACTION_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
