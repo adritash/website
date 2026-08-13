@@ -24,12 +24,17 @@ export type KnowledgeDocumentConfig = {
   publicUrl?: string;
 };
 
-const KNOWLEDGE_ROOT = path.join(process.cwd(), "knowledge");
+export const KNOWLEDGE_ROOT = path.join(process.cwd(), "knowledge");
 
 export const PUBLIC_METADATA_FILTER =
   'status="published" AND visibility="public"';
 
 export const KNOWLEDGE_MANIFEST_PATH = path.join(
+  KNOWLEDGE_ROOT,
+  ".manifest.json"
+);
+
+export const LEGACY_KNOWLEDGE_MANIFEST_PATH = path.join(
   KNOWLEDGE_ROOT,
   ".ingest-manifest.json"
 );
@@ -184,12 +189,43 @@ export function getKnowledgeDocumentByFileName(
 ): KnowledgeDocumentConfig | undefined {
   const base = fileName.replace(/\.[^.]+$/, "").toLowerCase();
   return knowledgeDocuments.find((doc) => {
-    const docBase = path.basename(doc.relativePath, ".md").toLowerCase();
+    const docBase = path.basename(doc.relativePath).replace(/\.[^.]+$/, "").toLowerCase();
     return docBase === base || doc.id.toLowerCase() === base;
   });
 }
 
+export function getKnowledgeDocumentByRelativePath(
+  relativePath: string
+): KnowledgeDocumentConfig | undefined {
+  const normalized = relativePath.replace(/\\/g, "/").replace(/^\.?\//, "");
+  return knowledgeDocuments.find((doc) => doc.relativePath === normalized);
+}
+
+export type KnowledgeIngestStatus = "indexed" | "failed";
+
 export type IngestManifestEntry = {
+  relativePath: string;
+  contentHash: string;
+  size: number;
+  mtimeMs: number;
+  mimeType: string;
+  documentName?: string;
+  displayName: string;
+  sourceId: string;
+  status: KnowledgeIngestStatus;
+  uploadedAt?: string;
+  lastError?: string;
+};
+
+export type IngestManifest = {
+  version: 1;
+  storeName: string;
+  files: Record<string, IngestManifestEntry>;
+  lastSyncAt?: string;
+};
+
+/** @deprecated Legacy ingest manifest keyed by source id */
+export type LegacyIngestManifestEntry = {
   sourceId: string;
   contentHash: string;
   documentName: string;
@@ -197,8 +233,8 @@ export type IngestManifestEntry = {
   uploadedAt: string;
 };
 
-export type IngestManifest = {
+export type LegacyIngestManifest = {
   storeName: string;
-  documents: Record<string, IngestManifestEntry>;
+  documents: Record<string, LegacyIngestManifestEntry>;
   lastIngestAt?: string;
 };

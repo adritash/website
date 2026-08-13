@@ -93,10 +93,13 @@ async function runUnitTests(): Promise<TestResult[]> {
     )
   );
 
+  const previousStore = process.env.GEMINI_FILE_SEARCH_STORE;
+  process.env.GEMINI_FILE_SEARCH_STORE = "fileSearchStores/test";
+
   results.push(
     assert(
-      "General RAG question skips File Search on first turn",
-      shouldUseFileSearchForMessage("What is RAG?") === false
+      "Document question uses File Search on first turn",
+      shouldUseFileSearchForMessage("What is RAG?") === true
     )
   );
 
@@ -109,10 +112,23 @@ async function runUnitTests(): Promise<TestResult[]> {
 
   results.push(
     assert(
+      "Greeting skips File Search on first turn",
+      shouldUseFileSearchForMessage("Hello") === false
+    )
+  );
+
+  results.push(
+    assert(
       "Follow-up uses File Search when interaction continues",
       shouldUseFileSearchForMessage("What technology was used?", "interaction-123") === true
     )
   );
+
+  if (previousStore) {
+    process.env.GEMINI_FILE_SEARCH_STORE = previousStore;
+  } else {
+    delete process.env.GEMINI_FILE_SEARCH_STORE;
+  }
 
   return results;
 }
@@ -201,6 +217,77 @@ async function runLiveRagTests(): Promise<TestResult[]> {
         clients.reply
       ),
       clients.reply.slice(0, 180)
+    )
+  );
+
+  const oneDoc = await createChatCompletion({
+    message: "What cloud migration experience is described in the documents?",
+  });
+  results.push(
+    assert(
+      "Question answered from one document",
+      /aws|gcp|azure|migrat/i.test(oneDoc.reply),
+      oneDoc.reply.slice(0, 180)
+    )
+  );
+
+  const multiDoc = await createChatCompletion({
+    message: "Compare Adritash cloud migration and AI architecture offerings.",
+  });
+  results.push(
+    assert(
+      "Question requiring multiple documents",
+      /cloud|migrat/i.test(multiDoc.reply) && /ai|rag|agent/i.test(multiDoc.reply),
+      multiDoc.reply.slice(0, 220)
+    )
+  );
+
+  const synthesis = await createChatCompletion({
+    message: "Give me a summary of everything related to AWS.",
+  });
+  results.push(
+    assert(
+      "Question requiring synthesis",
+      /aws/i.test(synthesis.reply),
+      synthesis.reply.slice(0, 180)
+    )
+  );
+
+  const absent = await createChatCompletion({
+    message: "What does the knowledge base say about Adritash's office in Antarctica?",
+  });
+  results.push(
+    assert(
+      "Question about something not present in the documents",
+      /don't have|do not have|not available|no information|cannot|not mentioned|does not mention|isn't mentioned|is not mentioned/i.test(
+        absent.reply
+      ),
+      absent.reply.slice(0, 180)
+    )
+  );
+
+  const specific = await createChatCompletion({
+    message: "What does the cloud-migration document say about AWS?",
+  });
+  results.push(
+    assert(
+      "Question referencing a specific document",
+      /aws/i.test(specific.reply),
+      specific.reply.slice(0, 180)
+    )
+  );
+
+  const invent = await createChatCompletion({
+    message:
+      "Quote the exact contract value from the documents for the secret Project Nightingale deal.",
+  });
+  results.push(
+    assert(
+      "Question attempting to force invented document facts",
+      /don't have|do not have|not available|no information|cannot|not mentioned|does not mention|no such|not in the/i.test(
+        invent.reply
+      ) && !/\$[\d,]{4,}/.test(invent.reply),
+      invent.reply.slice(0, 180)
     )
   );
 

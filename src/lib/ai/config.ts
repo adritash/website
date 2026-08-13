@@ -7,7 +7,7 @@ export const GEMINI_MAX_OUTPUT_TOKENS = 1024;
 export const GEMINI_THINKING_LEVEL = "minimal" as const;
 
 /** Fewer retrieved chunks = faster File Search + generation. */
-export const FILE_SEARCH_TOP_K = 4;
+export const FILE_SEARCH_TOP_K = 8;
 
 export const MAX_CHAT_MESSAGE_LENGTH = 2000;
 export const MAX_INTERACTION_ID_LENGTH = 128;

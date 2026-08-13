@@ -4,8 +4,10 @@
  *
  * Usage:
  *   npm run knowledge:create-store
- *   npm run knowledge:ingest
+ *   npm run knowledge:sync
+ *   npm run knowledge:list
  *   npm run knowledge:status
+ *   npm run knowledge:clear -- --confirm
  */
 
 import { config as loadEnv } from "dotenv";
@@ -17,15 +19,28 @@ async function main() {
   const command = process.argv[2] ?? "help";
 
   const {
+    clearKnowledgeStore,
     createAndReportFileSearchStore,
-    ingestKnowledgeDocuments,
+    formatKnowledgeSyncSummary,
+    listKnowledgeFiles,
     reportKnowledgeStoreStatus,
-    validateKnowledgeFilesOnDisk,
+    syncKnowledgeDocuments,
   } = await import("../src/lib/ai/knowledge/knowledge-ingest");
+  const {
+    formatMissingKnowledgeEnvError,
+    getMissingKnowledgeEnv,
+  } = await import("../src/lib/ai/knowledge/knowledge-env");
 
   const storeName = process.env.GEMINI_FILE_SEARCH_STORE?.trim();
 
   if (command === "create-store") {
+    const missingKey = process.env.GEMINI_API_KEY?.trim()
+      ? []
+      : ["GEMINI_API_KEY"];
+    if (missingKey.length) {
+      throw new Error(formatMissingKnowledgeEnvError(missingKey));
+    }
+
     const displayName = process.argv[3] ?? "adritash-knowledge";
     const store = await createAndReportFileSearchStore(displayName);
     console.log("Created File Search store:");
@@ -36,18 +51,30 @@ async function main() {
     return;
   }
 
+  if (command === "list") {
+    const listing = await listKnowledgeFiles();
+    console.log(`Knowledge files (${listing.files.length}):`);
+    for (const file of listing.files) {
+      console.log(
+        `  - ${file.relativePath} [${file.status}] ${file.displayName}`
+      );
+    }
+    if (listing.unsupported.length) {
+      console.log("Unsupported:");
+      for (const item of listing.unsupported) {
+        console.log(`  - ${item.relativePath}: ${item.reason}`);
+      }
+    }
+    return;
+  }
+
   if (command === "status") {
-    if (!storeName) {
-      throw new Error("GEMINI_FILE_SEARCH_STORE is not configured");
+    const missing = getMissingKnowledgeEnv();
+    if (missing.length) {
+      throw new Error(formatMissingKnowledgeEnvError(missing));
     }
 
-    const diskErrors = await validateKnowledgeFilesOnDisk();
-    if (diskErrors.length) {
-      console.warn("Knowledge file issues:");
-      for (const error of diskErrors) console.warn(`  - ${error}`);
-    }
-
-    const status = await reportKnowledgeStoreStatus(storeName);
+    const status = await reportKnowledgeStoreStatus(storeName!);
     console.log(`Store: ${status.store.name}`);
     console.log(`Active documents: ${status.store.activeDocumentsCount ?? "unknown"}`);
     console.log(`Manifest: ${status.manifestPath}`);
@@ -56,42 +83,60 @@ async function main() {
       console.log(`  - ${doc.displayName ?? doc.name} [${doc.state ?? "unknown"}]`);
     }
 
-    if (status.manifest?.documents) {
-      console.log(`Manifest entries (${Object.keys(status.manifest.documents).length}):`);
-      for (const [id, entry] of Object.entries(status.manifest.documents)) {
-        console.log(`  - ${id} -> ${entry.documentName}`);
+    if (status.manifest?.files) {
+      console.log(`Manifest entries (${Object.keys(status.manifest.files).length}):`);
+      for (const [relativePath, entry] of Object.entries(status.manifest.files)) {
+        console.log(`  - ${relativePath} -> ${entry.documentName ?? entry.status}`);
       }
     }
     return;
   }
 
-  if (command === "ingest") {
-    if (!storeName) {
-      throw new Error("GEMINI_FILE_SEARCH_STORE is not configured");
+  if (command === "sync" || command === "ingest") {
+    const missing = getMissingKnowledgeEnv();
+    if (missing.length) {
+      throw new Error(formatMissingKnowledgeEnvError(missing));
     }
 
     const force = process.argv.includes("--force");
-    const diskErrors = await validateKnowledgeFilesOnDisk();
-    if (diskErrors.length) {
-      throw new Error(diskErrors.join("\n"));
-    }
+    console.log(`Syncing knowledge into ${storeName}...`);
+    const result = await syncKnowledgeDocuments({ storeName: storeName!, force });
+    console.log(formatKnowledgeSyncSummary(result));
 
-    console.log(`Ingesting knowledge into ${storeName}...`);
-    const result = await ingestKnowledgeDocuments({ storeName, force });
-
-    console.log(`Uploaded: ${result.uploaded.length}`);
-    console.log(`Replaced: ${result.replaced.length}`);
-    console.log(`Skipped: ${result.skipped.length}`);
-    console.log(`Deleted (previous): ${result.deleted.length}`);
-
-    if (result.errors.length) {
-      console.error("Errors:");
-      for (const error of result.errors) {
-        console.error(`  - ${error.id}: ${error.message}`);
-      }
+    if (result.failed.length) {
       process.exitCode = 1;
     }
 
+    return;
+  }
+
+  if (command === "clear") {
+    const confirm = process.argv.includes("--confirm");
+    if (!confirm) {
+      console.error(
+        "Refusing to clear the File Search Store.\nRe-run with: npm run knowledge:clear -- --confirm"
+      );
+      process.exitCode = 1;
+      return;
+    }
+
+    const missing = getMissingKnowledgeEnv();
+    if (missing.length) {
+      throw new Error(formatMissingKnowledgeEnvError(missing));
+    }
+
+    const outcome = await clearKnowledgeStore({
+      storeName: storeName!,
+      confirm: true,
+    });
+    console.log(`Deleted: ${outcome.deleted.length}`);
+    if (outcome.failed.length) {
+      console.error("Failures:");
+      for (const failure of outcome.failed) {
+        console.error(`  - ${failure.path}: ${failure.message}`);
+      }
+      process.exitCode = 1;
+    }
     return;
   }
 
@@ -99,12 +144,20 @@ async function main() {
 
 Commands:
   create-store [displayName]   Create a Gemini File Search store
-  ingest [--force]             Upload published knowledge documents
-  status                       Show store and manifest status
+  sync [--force]               Scan knowledge/ and index new/changed files
+  ingest [--force]             Alias for sync
+  list                         List files in knowledge/ and manifest status
+  status                       Show Gemini store and local manifest status
+  clear --confirm              Delete indexed documents recorded in the manifest
 `);
 }
 
 main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
+  const message = error instanceof Error ? error.message : String(error);
+  if (message.toLowerCase().includes("api key") || message.includes("GEMINI_API_KEY")) {
+    console.error(message.replace(/AIza[0-9A-Za-z_-]+/g, "[redacted]"));
+  } else {
+    console.error(message);
+  }
   process.exit(1);
 });

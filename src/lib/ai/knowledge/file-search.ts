@@ -1,10 +1,18 @@
 import type { CustomMetadata, UploadToFileSearchStoreOperation } from "@google/genai";
 import { getGeminiClient } from "@/lib/ai/gemini";
 import { FILE_SEARCH_TOP_K } from "@/lib/ai/config";
-import {
-  PUBLIC_METADATA_FILTER,
-  type KnowledgeDocumentConfig,
-} from "@/lib/ai/knowledge/knowledge-config";
+import { PUBLIC_METADATA_FILTER } from "@/lib/ai/knowledge/knowledge-config";
+
+export type KnowledgeUploadMetadata = {
+  sourceId: string;
+  relativePath: string;
+  title: string;
+  category: string;
+  topic: string;
+  status: "published" | "draft";
+  visibility: "public" | "private";
+  publicUrl?: string;
+};
 
 export function getFileSearchStoreName(): string | undefined {
   const store = process.env.GEMINI_FILE_SEARCH_STORE?.trim();
@@ -30,7 +38,7 @@ export function buildFileSearchTool() {
 }
 
 export function buildKnowledgeCustomMetadata(
-  doc: KnowledgeDocumentConfig
+  doc: KnowledgeUploadMetadata
 ): CustomMetadata[] {
   const metadata: CustomMetadata[] = [
     { key: "category", stringValue: doc.category },
@@ -38,7 +46,8 @@ export function buildKnowledgeCustomMetadata(
     { key: "status", stringValue: doc.status },
     { key: "visibility", stringValue: doc.visibility },
     { key: "title", stringValue: doc.title },
-    { key: "source_id", stringValue: doc.id },
+    { key: "source_id", stringValue: doc.sourceId },
+    { key: "source_path", stringValue: doc.relativePath },
   ];
 
   if (doc.publicUrl) {
@@ -72,7 +81,10 @@ export async function listIndexedDocuments(storeName: string) {
 
 export async function deleteIndexedDocument(documentName: string) {
   const gemini = getGeminiClient();
-  await gemini.fileSearchStores.documents.delete({ name: documentName });
+  await gemini.fileSearchStores.documents.delete({
+    name: documentName,
+    config: { force: true },
+  });
 }
 
 export async function waitForUploadOperation(
@@ -108,11 +120,13 @@ export async function uploadKnowledgeFile({
   storeName,
   filePath,
   displayName,
+  mimeType,
   customMetadata,
 }: {
   storeName: string;
   filePath: string;
   displayName: string;
+  mimeType: string;
   customMetadata: CustomMetadata[];
 }) {
   const gemini = getGeminiClient();
@@ -122,7 +136,7 @@ export async function uploadKnowledgeFile({
     file: filePath,
     config: {
       displayName,
-      mimeType: "text/markdown",
+      mimeType,
       customMetadata,
     },
   });

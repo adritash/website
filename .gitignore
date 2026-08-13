@@ -41,5 +41,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# knowledge ingestion local manifest
+# knowledge ingestion local manifest (hashes + Gemini document names)
 knowledge/.ingest-manifest.json
+knowledge/.manifest.json

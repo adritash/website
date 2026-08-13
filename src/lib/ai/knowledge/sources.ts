@@ -1,6 +1,7 @@
 import {
   getKnowledgeDocumentByFileName,
   getKnowledgeDocumentById,
+  getKnowledgeDocumentByRelativePath,
   type KnowledgeCategory,
 } from "@/lib/ai/knowledge/knowledge-config";
 
@@ -51,16 +52,20 @@ function resolveSourceFromCitation(
   }
 
   const sourceId = readMetadataString(annotation.custom_metadata, "source_id");
-  const configured = sourceId
-    ? getKnowledgeDocumentById(sourceId)
-    : annotation.file_name
+  const sourcePath = readMetadataString(annotation.custom_metadata, "source_path");
+
+  const configured =
+    (sourceId ? getKnowledgeDocumentById(sourceId) : undefined) ??
+    (sourcePath ? getKnowledgeDocumentByRelativePath(sourcePath) : undefined) ??
+    (annotation.file_name
       ? getKnowledgeDocumentByFileName(annotation.file_name)
-      : undefined;
+      : undefined);
 
   const title =
     configured?.title ||
     readMetadataString(annotation.custom_metadata, "title") ||
     annotation.file_name ||
+    sourcePath ||
     annotation.source;
 
   if (!title) {

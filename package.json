@@ -8,10 +8,15 @@
     "start": "next start",
     "lint": "eslint",
     "knowledge:create-store": "tsx scripts/knowledge-ingest.ts create-store",
+    "knowledge:sync": "tsx scripts/knowledge-ingest.ts sync",
     "knowledge:ingest": "tsx scripts/knowledge-ingest.ts ingest",
+    "knowledge:list": "tsx scripts/knowledge-ingest.ts list",
     "knowledge:status": "tsx scripts/knowledge-ingest.ts status",
+    "knowledge:clear": "tsx scripts/knowledge-ingest.ts clear",
+    "test": "tsx scripts/ai-chat-tests.ts && tsx scripts/knowledge-sync-tests.ts",
     "test:ai": "tsx scripts/ai-chat-tests.ts",
-    "test:ai:live": "tsx scripts/ai-chat-tests.ts --live"
+    "test:ai:live": "tsx scripts/ai-chat-tests.ts --live",
+    "test:knowledge": "tsx scripts/knowledge-sync-tests.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.7.1",
