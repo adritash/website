@@ -21,3 +21,19 @@ export const WELCOME_BUBBLE_MAX_DELAY_MS = 8000;
 
 export const WELCOME_BUBBLE_STORAGE_KEY = "adritash-ai-welcome-dismissed";
 export const AI_SESSION_INTERACTION_KEY = "adritash-ai-interaction-id";
+
+/** Shown in the chat bubble while waiting for the first streamed tokens. */
+export const AI_THINKING_STATUSES = [
+  "Thinking",
+  "Analyzing",
+  "Reasoning",
+  "Processing",
+  "Evaluating",
+  "Synthesizing",
+  "Calculating",
+  "Drafting",
+  "Refining",
+  "Reviewing",
+] as const;
+
+export const AI_THINKING_STATUS_INTERVAL_MS = 1600;
