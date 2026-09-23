@@ -5,6 +5,63 @@ export type SkillCategory = {
   skills: string[];
 };
 
+export const coreCompetencies = [
+  {
+    name: "Technology Strategy & Leadership",
+    skills: [
+      "Technology Strategy",
+      "IT Portfolio Management",
+      "Digital Transformation",
+      "Program Governance",
+      "Stakeholder Management",
+      "Vendor & Budget Management",
+      "Risk & Compliance",
+    ],
+  },
+  {
+    name: "Cloud & Enterprise Architecture",
+    skills: [
+      "AWS",
+      "GCP",
+      "Cloud Transformation",
+      "Application Modernization",
+      "Enterprise Architecture",
+      "Solution Architecture",
+      "Private Cloud",
+      "Disaster Recovery",
+      "Business Continuity",
+    ],
+  },
+  {
+    name: "FinTech & Enterprise Platforms",
+    skills: [
+      "FinTech",
+      "PeopleSoft HCM/FSCM/CS",
+      "Workday Finance",
+      "ServiceNow",
+      "Jira",
+      "Enterprise Applications",
+      "IT Operations",
+    ],
+  },
+  {
+    name: "AI, Automation & Security",
+    skills: [
+      "Python",
+      "PowerShell",
+      "Generative AI",
+      "AI Integration",
+      "API Integration",
+      "Automation",
+      "Flexera",
+      "IBM ILMT",
+      "Qualys",
+      "Software Asset Management",
+      "SQL Server",
+    ],
+  },
+] as const;
+
 export const skillCategories: SkillCategory[] = [
   {
     id: "architecture",

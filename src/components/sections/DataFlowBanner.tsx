@@ -25,12 +25,12 @@ type ArchitectureFlowCardProps = {
 function ArchitectureFlowCard({ arch, onHoverStart, onHoverEnd }: ArchitectureFlowCardProps) {
   return (
     <Link
-      href="/architecture"
+      href={`/architecture#${arch.id}`}
       onMouseEnter={onHoverStart}
       onMouseLeave={onHoverEnd}
       onFocus={onHoverStart}
       onBlur={onHoverEnd}
-      className="group relative w-72 shrink-0 overflow-hidden rounded-xl border border-brand/40 bg-[#1a0a0e] shadow-lg ring-1 ring-white/10 transition-all hover:z-10 hover:scale-[1.02] hover:border-brand/70 hover:ring-brand/30 sm:w-80 lg:w-[26rem]"
+      className="group relative w-[22rem] shrink-0 overflow-hidden rounded-xl border border-brand/40 bg-[#1a0a0e] shadow-lg ring-1 ring-white/10 transition-all hover:z-10 hover:scale-[1.02] hover:border-brand/70 hover:ring-brand/30 sm:w-[28rem] lg:w-[36rem] xl:w-[42rem]"
     >
       <div className="relative aspect-[16/10] w-full bg-[#1f1014]">
         {arch.diagramImage && (
@@ -39,8 +39,8 @@ function ArchitectureFlowCard({ arch, onHoverStart, onHoverEnd }: ArchitectureFl
             alt={arch.diagramAlt ?? `${arch.title} architecture diagram`}
             fill
             quality={92}
-            sizes="(max-width: 640px) 288px, (max-width: 1024px) 320px, 416px"
-            className="object-contain object-center p-1 transition-transform duration-500 group-hover:scale-[1.02]"
+            sizes="(max-width: 640px) 352px, (max-width: 1024px) 448px, (max-width: 1280px) 576px, 672px"
+            className="object-contain object-center p-1.5 transition-transform duration-500 group-hover:scale-[1.02]"
           />
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/50 to-transparent" />

@@ -87,12 +87,16 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           <div>
             <h2 className="text-2xl font-bold text-foreground">Education</h2>
-            <Card hover={false} className="mt-6">
-              <p className="font-semibold text-foreground">{profile.education.degree}</p>
-              <p className="mt-1 text-sm text-muted">
-                {profile.education.institution} · {profile.education.year}
-              </p>
-            </Card>
+            <div className="mt-6 space-y-4">
+              {profile.education.map((item) => (
+                <Card key={item.degree} hover={false}>
+                  <p className="font-semibold text-foreground">{item.degree}</p>
+                  <p className="mt-1 text-sm text-muted">
+                    {item.institution} · {item.year}
+                  </p>
+                </Card>
+              ))}
+            </div>
           </div>
           <div>
             <div className="flex items-center justify-between gap-4">

@@ -69,7 +69,7 @@ export default function ExperienceTimeline({ entries }: ExperienceTimelineProps)
 
                   <div
                     id={`exp-${job.id}`}
-                    className={`overflow-hidden transition-all ${isOpen ? "mt-4 max-h-96 opacity-100" : "max-h-0 opacity-0"}`}
+                    className={`overflow-hidden transition-all ${isOpen ? "mt-4 max-h-[40rem] opacity-100" : "max-h-0 opacity-0"}`}
                   >
                     <ul className="space-y-2 border-t border-border pt-4">
                       {job.highlights.map((highlight) => (

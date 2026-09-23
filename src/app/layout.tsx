@@ -81,10 +81,10 @@ function JsonLd() {
       name: c.name,
       credentialCategory: c.issuer,
     })),
-    alumniOf: {
+    alumniOf: profile.education.map((item) => ({
       "@type": "CollegeOrUniversity",
-      name: profile.education.institution,
-    },
+      name: item.institution,
+    })),
   };
 
   return (

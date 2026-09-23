@@ -1,12 +1,33 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { Architecture } from "@/lib/data/architectures";
 import { architectures } from "@/lib/data/architectures";
 import ArchitectureDiagram from "@/components/sections/ArchitectureDiagram";
+import PageHero from "@/components/sections/PageHero";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
+import Section from "@/components/ui/Section";
+
+function architectureIdFromHash(hash: string): string | null {
+  const raw = hash.replace(/^#/, "").trim();
+  if (!raw) return null;
+
+  const id = raw.startsWith("diagram-")
+    ? raw.slice("diagram-".length)
+    : raw.startsWith("architecture-")
+      ? raw.slice("architecture-".length)
+      : raw;
+
+  return architectures.some((arch) => arch.id === id) ? id : null;
+}
+
+function setArchitectureHash(id: string | null) {
+  const url = new URL(window.location.href);
+  url.hash = id ?? "";
+  window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+}
 
 const cloudBadgeStyles = {
   AWS: "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300",
@@ -21,78 +42,43 @@ export default function ArchitectureDashboard({
   items = architectures,
 }: ArchitectureDashboardProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const detailRef = useRef<HTMLDivElement>(null);
-
+  const [hashReady, setHashReady] = useState(false);
   const selected = items.find((a) => a.id === selectedId);
 
   useEffect(() => {
-    if (selectedId && detailRef.current) {
-      detailRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    function syncFromHash() {
+      setSelectedId(architectureIdFromHash(window.location.hash));
+      setHashReady(true);
     }
+
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    window.scrollTo({ top: 0, behavior: "auto" });
   }, [selectedId]);
 
   function handleSelect(id: string) {
-    setSelectedId((prev) => (prev === id ? null : id));
+    setSelectedId(id);
+    setArchitectureHash(id);
   }
 
-  return (
-    <div className="space-y-10">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {items.map((arch) => {
-          const isSelected = selectedId === arch.id;
-          return (
-            <button
-              key={arch.id}
-              type="button"
-              onClick={() => handleSelect(arch.id)}
-              aria-pressed={isSelected}
-              aria-expanded={isSelected}
-              className="text-left"
-            >
-              <Card
-                hover={!isSelected}
-                className={`h-full transition-all ${
-                  isSelected
-                    ? "border-brand ring-2 ring-brand/20"
-                    : ""
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <span
-                    className={`inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold ${cloudBadgeStyles[arch.cloud]}`}
-                  >
-                    {arch.cloud}
-                  </span>
-                  {isSelected && (
-                    <span className="text-xs font-medium text-brand">Selected</span>
-                  )}
-                </div>
-                <h3 className="mt-3 text-lg font-semibold text-foreground">
-                  {arch.title}
-                </h3>
-                <p className="mt-1 text-sm text-muted">{arch.subtitle}</p>
-                <p className="mt-3 text-sm leading-relaxed text-muted">
-                  {arch.summary}
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {arch.highlightServices.map((service) => (
-                    <Badge key={service} variant="brand">
-                      {service}
-                    </Badge>
-                  ))}
-                </div>
-              </Card>
-            </button>
-          );
-        })}
-      </div>
+  function handleBack() {
+    setSelectedId(null);
+    setArchitectureHash(null);
+  }
 
-      {selected && (
-        <div
-          ref={detailRef}
-          id={`architecture-${selected.id}`}
-          className="section-anchor scroll-mt-24"
-        >
+  if (!hashReady) {
+    return null;
+  }
+
+  if (selected) {
+    return (
+      <Section background="white" className="!pt-10 sm:!pt-12">
+        <article id={selected.id} className="section-anchor">
           <Card hover={false} className="!p-6 sm:!p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
@@ -102,15 +88,15 @@ export default function ArchitectureDashboard({
                   >
                     {selected.cloud}
                   </span>
-                  <h2 className="text-2xl font-semibold text-foreground">
+                  <h1 className="text-2xl font-semibold text-foreground">
                     {selected.title}
-                  </h2>
+                  </h1>
                 </div>
                 <p className="mt-2 text-muted">{selected.subtitle}</p>
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedId(null)}
+                onClick={handleBack}
                 className="shrink-0 text-sm font-medium text-brand hover:underline"
               >
                 Back to overview
@@ -118,16 +104,16 @@ export default function ArchitectureDashboard({
             </div>
 
             <section className="mt-8">
-              <h3 className="text-lg font-semibold text-foreground">Overview</h3>
+              <h2 className="text-lg font-semibold text-foreground">Overview</h2>
               <p className="mt-2 text-sm leading-relaxed text-muted">
                 {selected.overview}
               </p>
             </section>
 
-            <section className="mt-10">
-              <h3 className="text-lg font-semibold text-foreground">
+            <section id={`diagram-${selected.id}`} className="section-anchor mt-10">
+              <h2 className="text-lg font-semibold text-foreground">
                 Architecture Layers
-              </h3>
+              </h2>
               <p className="mt-1 text-sm text-muted">
                 End-to-end stack from channels through storage and observability.
               </p>
@@ -153,7 +139,7 @@ export default function ArchitectureDashboard({
             </section>
 
             <section className="mt-10">
-              <h3 className="text-lg font-semibold text-foreground">Data Flow</h3>
+              <h2 className="text-lg font-semibold text-foreground">Data Flow</h2>
               <ol className="mt-4 space-y-4">
                 {selected.dataFlow.map((step) => (
                   <li key={step.step} className="flex gap-4">
@@ -170,16 +156,16 @@ export default function ArchitectureDashboard({
             </section>
 
             <section className="mt-10">
-              <h3 className="text-lg font-semibold text-foreground">
+              <h2 className="text-lg font-semibold text-foreground">
                 Design Decisions
-              </h3>
+              </h2>
               <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
                 {selected.decisions.map((decision) => (
                   <div
                     key={decision.title}
                     className="rounded-xl border border-border bg-surface p-4"
                   >
-                    <h4 className="font-semibold text-foreground">{decision.title}</h4>
+                    <h3 className="font-semibold text-foreground">{decision.title}</h3>
                     <p className="mt-2 text-sm leading-relaxed text-muted">
                       {decision.body}
                     </p>
@@ -188,8 +174,55 @@ export default function ArchitectureDashboard({
               </div>
             </section>
           </Card>
+        </article>
+      </Section>
+    );
+  }
+
+  return (
+    <>
+      <PageHero
+        eyebrow="Architecture"
+        title="Reference designs for real-world workloads"
+        description="Click each architecture to explore the full end-to-end cloud stack — layers, services, data flows, and key design decisions."
+      />
+
+      <Section background="white">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {items.map((arch) => (
+            <button
+              key={arch.id}
+              type="button"
+              onClick={() => handleSelect(arch.id)}
+              className="text-left"
+            >
+              <Card hover className="h-full transition-all">
+                <div className="flex items-start justify-between gap-3">
+                  <span
+                    className={`inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold ${cloudBadgeStyles[arch.cloud]}`}
+                  >
+                    {arch.cloud}
+                  </span>
+                </div>
+                <h2 className="mt-3 text-lg font-semibold text-foreground">
+                  {arch.title}
+                </h2>
+                <p className="mt-1 text-sm text-muted">{arch.subtitle}</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  {arch.summary}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {arch.highlightServices.map((service) => (
+                    <Badge key={service} variant="brand">
+                      {service}
+                    </Badge>
+                  ))}
+                </div>
+              </Card>
+            </button>
+          ))}
         </div>
-      )}
-    </div>
+      </Section>
+    </>
   );
 }

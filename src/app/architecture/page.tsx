@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import PageHero from "@/components/sections/PageHero";
 import ArchitectureDashboard from "@/components/sections/ArchitectureDashboard";
 import CTABand from "@/components/ui/CTABand";
-import Section from "@/components/ui/Section";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createPageMetadata({
@@ -15,15 +13,7 @@ export const metadata: Metadata = createPageMetadata({
 export default function ArchitecturePage() {
   return (
     <>
-      <PageHero
-        eyebrow="Architecture"
-        title="Reference designs for real-world workloads"
-        description="Click each architecture to explore the full end-to-end cloud stack — layers, services, data flows, and key design decisions."
-      />
-
-      <Section background="white">
-        <ArchitectureDashboard />
-      </Section>
+      <ArchitectureDashboard />
 
       <CTABand
         title="Want to discuss a similar architecture?"

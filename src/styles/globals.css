@@ -230,19 +230,19 @@ body {
 }
 
 .data-flow-marquee-left {
-  animation: data-flow-marquee-left 70s linear infinite;
+  animation: data-flow-marquee-left 160s linear infinite;
 }
 
 .data-flow-marquee-right {
-  animation: data-flow-marquee-right 55s linear infinite;
+  animation: data-flow-marquee-right 140s linear infinite;
 }
 
 .data-flow-marquee-slow {
-  animation-duration: 90s;
+  animation-duration: 220s;
 }
 
 .data-flow-marquee-fast {
-  animation-duration: 45s;
+  animation-duration: 100s;
 }
 
 .data-flow-marquee-track.is-paused,
