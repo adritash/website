@@ -22,6 +22,64 @@ export type Architecture = {
   decisions: { title: string; body: string }[];
 };
 
+const fintechReferenceDesigns: Architecture[] = [
+  {
+    id: "fintech-data-modernization", title: "FinTech Data Platform Modernisation", subtitle: "Governed Bronze, Silver, and Gold analytics foundation", cloud: "AWS", cloudColor: "orange",
+    summary: "Reference design for reconcilable finance and customer analytics, led through a governed data-transformation programme.",
+    overview: "A scalable target architecture that moves fragmented operational extracts into a trusted analytics platform. The programme lead aligns finance, data engineering, and platform operations around contracts, quality gates, reconciliation, and curated business marts.",
+    highlightServices: ["S3", "Snowflake", "dbt", "Airflow"],
+    layers: [
+      { id: "sources", name: "Source & Landing", services: [{ name: "Operational Systems", description: "Customer, account, invoice, and payment sources" }, { name: "S3", description: "Immutable raw and Bronze landing zone" }] },
+      { id: "transform", name: "Conformance & Transform", services: [{ name: "dbt", description: "Versioned Silver and Gold transformations" }, { name: "Airflow", description: "Scheduled orchestration and dependency control" }] },
+      { id: "serve", name: "Analytics Serving", services: [{ name: "Snowflake", description: "Conformed warehouse and dimensional marts" }, { name: "BI Semantic Layer", description: "Governed collections and receivables metrics" }] },
+      { id: "govern", name: "Governance & Operations", services: [{ name: "Data Quality", description: "Reconciliation and business-rule gates" }, { name: "IAM & Audit", description: "Access control, lineage, and release evidence" }] },
+    ],
+    dataFlow: [{ step: 1, label: "Land source data", detail: "Operational extracts arrive in immutable storage with source contracts." }, { step: 2, label: "Conform and validate", detail: "Engineering standardises entities and runs quality and reconciliation controls." }, { step: 3, label: "Publish business marts", detail: "Curated payment, invoice, and customer models serve governed analytics." }, { step: 4, label: "Operate and improve", detail: "Stewards approve releases; observability and lineage support production operations." }],
+    decisions: [{ title: "Medallion layers", body: "Separates source fidelity, conformance, and business consumption for traceability." }, { title: "Reconciliation first", body: "Finance controls are release gates, not post-report manual checks." }, { title: "Cloud-ready contracts", body: "Business logic remains stable as local proof of value moves to S3 and Snowflake." }],
+  },
+  {
+    id: "fintech-fraud-monitoring", title: "FinTech Fraud Monitoring", subtitle: "Explainable payment-risk scoring and analyst operations", cloud: "AWS", cloudColor: "orange",
+    summary: "Reference design for an event-to-alert risk data product with transparent decisioning and a path to real-time operations.",
+    overview: "The programme brings fraud operations, compliance, data engineering, and platform administration together around explainable risk rules, alert prioritisation, feedback, and real-time evolution.",
+    highlightServices: ["Kinesis", "Lambda", "DynamoDB", "EventBridge"],
+    layers: [
+      { id: "events", name: "Payment Events", services: [{ name: "Payment Gateway", description: "Authorisation and transaction events" }, { name: "Kinesis", description: "Durable real-time event ingestion" }] },
+      { id: "risk", name: "Risk Decisioning", services: [{ name: "Lambda", description: "Velocity, geography, and high-value rule evaluation" }, { name: "Feature Store", description: "Recent transaction and customer context" }] },
+      { id: "cases", name: "Alerts & Investigation", services: [{ name: "DynamoDB", description: "Alert state and decision audit trail" }, { name: "Case Management", description: "Prioritised analyst investigation queue" }] },
+      { id: "control", name: "Control & Feedback", services: [{ name: "EventBridge", description: "Escalation and workflow events" }, { name: "Monitoring", description: "Latency, rule effectiveness, and failure alarms" }] },
+    ],
+    dataFlow: [{ step: 1, label: "Ingest payment", detail: "Transaction events are validated and durably streamed." }, { step: 2, label: "Enrich and score", detail: "Rules use payment details and recent customer activity." }, { step: 3, label: "Create alert", detail: "High-risk decisions include reason codes, severity, and traceability." }, { step: 4, label: "Investigate and learn", detail: "Analyst outcomes tune rules and inform future model governance." }],
+    decisions: [{ title: "Explainable rules", body: "Reason codes support investigation, challenge, and regulatory review." }, { title: "Event-driven design", body: "Decouples payment channels from risk processing and supports seconds-level response." }, { title: "Human feedback loop", body: "Analyst outcomes measure false positives and improve risk policy." }],
+  },
+  {
+    id: "fintech-customer-360", title: "FinTech Customer 360", subtitle: "Unified customer data and retention actioning", cloud: "GCP", cloudColor: "blue",
+    summary: "Reference design for a governed customer view spanning CRM, product, payments, and support operations.",
+    overview: "A customer-data programme that aligns product, CRM, support, and engineering teams around mastered identity, trusted customer measures, and actionable retention insights.",
+    highlightServices: ["Pub/Sub", "BigQuery", "dbt", "Looker"],
+    layers: [{ id: "sources", name: "Customer Domains", services: [{ name: "CRM & Support", description: "Customer profile and interaction sources" }, { name: "Product & Payments", description: "Account and transaction signals" }] }, { id: "identity", name: "Identity & Conformance", services: [{ name: "Mastered Customer Key", description: "Cross-system identity resolution" }, { name: "dbt", description: "Conformed customer and account models" }] }, { id: "serve", name: "Customer Data Product", services: [{ name: "BigQuery", description: "Customer 360 and health marts" }, { name: "Looker", description: "Retention and relationship-management views" }] }, { id: "privacy", name: "Privacy & Governance", services: [{ name: "IAM", description: "Role-based access and sensitive-field protection" }, { name: "Catalog & Lineage", description: "Ownership and traceability" }] }],
+    dataFlow: [{ step: 1, label: "Collect domain signals", detail: "CRM, support, product, and payment data arrive on governed cadence." }, { step: 2, label: "Resolve identity", detail: "Mastered keys create a consistent customer representation." }, { step: 3, label: "Calculate health", detail: "Value, engagement, and service signals produce actionable customer health." }, { step: 4, label: "Activate insights", detail: "Relationship and support teams receive role-appropriate action queues." }],
+    decisions: [{ title: "Mastered identity", body: "Prevents duplicated or conflicting customer views across teams." }, { title: "Actionable health", body: "Converts analytics into prioritised relationship-management decisions." }, { title: "Privacy by design", body: "Protects customer data through minimisation and role-based access." }],
+  },
+  {
+    id: "fintech-payment-reconciliation", title: "FinTech Payment Reconciliation", subtitle: "Ledger-to-settlement financial control automation", cloud: "AWS", cloudColor: "orange",
+    summary: "Reference design for finance-grade transaction matching, exception management, and audit evidence.",
+    overview: "The control design aligns finance controllers, payments operations, data engineering, and platform administration around daily reconciliation, break ownership, and close-ready evidence.",
+    highlightServices: ["S3", "Step Functions", "Aurora", "QuickSight"],
+    layers: [{ id: "feeds", name: "Financial Feeds", services: [{ name: "Ledger", description: "Internal posted transaction records" }, { name: "Processor Settlements", description: "Gateway settlement files and APIs" }] }, { id: "match", name: "Matching & Controls", services: [{ name: "Step Functions", description: "Controlled reconciliation workflow" }, { name: "Rules Engine", description: "Match, mismatch, late, and missing classification" }] }, { id: "cases", name: "Exceptions & Evidence", services: [{ name: "Aurora", description: "Transaction-level reconciliation facts" }, { name: "Operations Queue", description: "Break resolution ownership and SLA" }] }, { id: "report", name: "Reporting & Audit", services: [{ name: "QuickSight", description: "Controller dashboard and close reporting" }, { name: "Audit Store", description: "Immutable source, result, and sign-off evidence" }] }],
+    dataFlow: [{ step: 1, label: "Collect financial records", detail: "Ledger and settlement data land with source identifiers and cutoff context." }, { step: 2, label: "Standardise and match", detail: "Transaction-level logic classifies matched and exception records." }, { step: 3, label: "Resolve breaks", detail: "Operations receives owned queues for missing, late, or mismatched settlement." }, { step: 4, label: "Sign off control", detail: "Finance reviews exceptions and retains close-ready audit evidence." }],
+    decisions: [{ title: "Transaction-level facts", body: "Every ledger item remains traceable; no unexplained aggregate netting." }, { title: "Exception ownership", body: "Breaks are routed and aged instead of silently tolerated." }, { title: "Audit evidence", body: "Source lineage, results, and sign-off support financial control assurance." }],
+  },
+  {
+    id: "fintech-data-observability", title: "FinTech Data Observability", subtitle: "Reliability control tower for critical data products", cloud: "GCP", cloudColor: "blue",
+    summary: "Reference design for monitoring freshness, volume, quality, and SLA performance across business-critical pipelines.",
+    overview: "A data-reliability programme that gives engineering, platform operations, and data owners a shared view of pipeline health, incident ownership, and service-level performance.",
+    highlightServices: ["Cloud Composer", "Cloud Monitoring", "BigQuery", "Pub/Sub"],
+    layers: [{ id: "telemetry", name: "Run Telemetry", services: [{ name: "Orchestrator Events", description: "Run start, completion, and dependency signals" }, { name: "Data Tests", description: "Freshness, volume, and quality results" }] }, { id: "health", name: "Health Classification", services: [{ name: "BigQuery", description: "Historical run and reliability metrics" }, { name: "Rules Engine", description: "SLA breach, volume anomaly, and quality failure detection" }] }, { id: "operate", name: "Incident Operations", services: [{ name: "Pub/Sub", description: "Incident routing and escalation events" }, { name: "Runbooks", description: "Owner-specific recovery guidance" }] }, { id: "insight", name: "Reliability Reporting", services: [{ name: "Cloud Monitoring", description: "Operational alerts and dashboards" }, { name: "Executive Views", description: "Service-level and recurring-issue reporting" }] }],
+    dataFlow: [{ step: 1, label: "Capture telemetry", detail: "Pipelines emit run, freshness, volume, and test information." }, { step: 2, label: "Classify health", detail: "Rules identify healthy, SLA-breached, anomalous, or failed runs." }, { step: 3, label: "Route incidents", detail: "Owners receive contextual alerts linked to runbooks and business impact." }, { step: 4, label: "Improve reliability", detail: "Trends drive remediation planning and service-level governance." }],
+    decisions: [{ title: "Product-level SLAs", body: "Reliability is measured against business expectations, not only technical job success." }, { title: "Contextual alerts", body: "Incidents include the failure reason, owner, and run context for faster recovery." }, { title: "Trend governance", body: "Recurring incidents become visible improvement priorities for leadership." }],
+  },
+];
+
 export const architectures: Architecture[] = [
   {
     id: "financial-billing",
@@ -1004,6 +1062,7 @@ export const architectures: Architecture[] = [
       { title: "Centralised registry", body: "DynamoDB single inventory eliminates shadow IT licence tracking in spreadsheets." },
     ],
   },
+  ...fintechReferenceDesigns,
 ];
 
 export function getArchitectureById(id: string): Architecture | undefined {

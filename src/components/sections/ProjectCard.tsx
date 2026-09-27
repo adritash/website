@@ -1,4 +1,5 @@
 import Badge from "@/components/ui/Badge";
+import Link from "next/link";
 import type { Project } from "@/lib/data/projects";
 
 type ProjectCardProps = {
@@ -58,6 +59,14 @@ export default function ProjectCard({ project, featured = false }: ProjectCardPr
             ))}
           </div>
         </div>
+        {project.referenceHref && (
+          <Link
+            href={project.referenceHref}
+            className="text-sm font-semibold text-brand hover:underline"
+          >
+            View reference design →
+          </Link>
+        )}
       </div>
     </article>
   );
