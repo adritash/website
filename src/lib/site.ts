@@ -18,8 +18,8 @@ export const siteConfig = {
 
 export const contact = {
   email: "contact@adritash.com",
-  phone: "+91-9503303717",
-  phoneHref: "tel:+919503303717",
+  phone: "+91-9425255657",
+  phoneHref: "tel:+919425255657",
   emailHref: "mailto:contact@adritash.com",
 } as const;
 
