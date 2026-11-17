@@ -8,7 +8,7 @@ export const assets = {
 export const siteConfig = {
   name: "Dwaipayan Rajguru",
   brand: "Adritash",
-  tagline: "Enterprise Architect · Cloud & AI Leader",
+  tagline: "Architecting Intelligence. Engineering the Future.",
   description:
     "Personal portfolio of Dwaipayan Rajguru — 15+ years in enterprise architecture, cloud modernisation, and AI transformation across FinTech and regulated industries.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://adritash.com",
