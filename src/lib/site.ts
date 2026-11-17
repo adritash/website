@@ -1,5 +1,7 @@
 export const assets = {
   profilePhoto: "/images/dwai-formal.png",
+  logo: "/logo/adritash.png",
+  logoMark: "/logo/adritash-mark.png",
   resumePdf: "/resume/Dwaipayan_Rajguru_Resume.pdf",
   resumeFilename: "Dwaipayan_Rajguru_Resume.pdf",
 } as const;
@@ -17,10 +19,10 @@ export const siteConfig = {
 } as const;
 
 export const contact = {
-  email: "contact@adritash.com",
-  phone: "+91-9425255657",
-  phoneHref: "tel:+919425255657",
-  emailHref: "mailto:contact@adritash.com",
+  email: "drajguru28@gmail.com",
+  phone: "+91-9503303717",
+  phoneHref: "tel:+919503303717",
+  emailHref: "mailto:drajguru28@gmail.com",
 } as const;
 
 export const social = {
