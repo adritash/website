@@ -1,5 +1,6 @@
 export const assets = {
   profilePhoto: "/images/dwai-formal.png",
+  logoMark: "/logo/adritash-mark.png",
   resumePdf: "/resume/Dwaipayan_Rajguru_Resume.pdf",
   resumeFilename: "Dwaipayan_Rajguru_Resume.pdf",
 } as const;

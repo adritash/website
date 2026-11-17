@@ -1,11 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
-import { profile } from "@/lib/data/profile";
-import { navLinks, siteConfig } from "@/lib/site";
+import { assets, navLinks, siteConfig } from "@/lib/site";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -24,14 +24,19 @@ export default function Navbar() {
         <Link
           href="/"
           className="flex min-w-0 items-center gap-3 rounded-lg leading-none"
-          aria-label={`${profile.name} home`}
+          aria-label={`${siteConfig.brand} home`}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-brand-dark text-xs font-bold text-white">
-            {profile.initials}
-          </div>
+          <Image
+            src={assets.logoMark}
+            alt="Adritash"
+            width={53}
+            height={40}
+            priority
+            className="h-10 w-auto shrink-0 rounded-md object-contain"
+          />
           <div className="min-w-0 hidden sm:block">
             <span className="block truncate text-sm font-bold tracking-tight text-foreground">
-              {profile.name}
+              {siteConfig.brand}
             </span>
             <span className="block truncate text-[10px] font-medium uppercase tracking-widest text-brand">
               {siteConfig.tagline}
