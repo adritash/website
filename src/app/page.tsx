@@ -35,29 +35,29 @@ export default function HomePage() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(128,0,32,0.12),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(224,122,138,0.18),transparent_60%)]"
           aria-hidden="true"
         />
-        <Container className="relative pt-8 pb-16 sm:pt-10 sm:pb-20 lg:pt-12 lg:pb-28">
-          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[1fr_auto] lg:gap-16">
+        <Container className="relative py-8 sm:py-10 lg:py-12">
+          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-[1fr_auto] lg:gap-12">
             <div>
-              <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-brand">
                 {profile.location} · 15+ Years
               </p>
-              <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+              <h1 className="text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl lg:text-5xl">
                 {profile.name}
               </h1>
-              <p className="mt-4 text-xl font-medium text-brand sm:text-2xl">
+              <p className="mt-3 text-lg font-medium text-brand sm:text-xl">
                 {profile.role}
               </p>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-muted">
                 {profile.tagline}
               </p>
-              <div className="mt-10 flex flex-wrap gap-4">
-                <Button href="/projects" size="lg">
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button href="/projects">
                   View Projects
                 </Button>
-                <Button href={assets.resumePdf} download={assets.resumeFilename} variant="secondary" size="lg">
+                <Button href={assets.resumePdf} download={assets.resumeFilename} variant="secondary">
                   Download Resume
                 </Button>
-                <Button href="/contact" variant="ghost" size="lg">
+                <Button href="/contact" variant="ghost">
                   Get in Touch
                 </Button>
               </div>
