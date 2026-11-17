@@ -194,15 +194,6 @@ export default function HomePage() {
               Get in Touch
             </Button>
             <Button
-              href="mailto:drajguru28@gmail.com"
-              external
-              variant="ghost"
-              size="lg"
-              className="border-white/40 text-white hover:border-white hover:text-white"
-            >
-              Email Me
-            </Button>
-            <Button
               href="/resume"
               variant="ghost"
               size="lg"

@@ -36,7 +36,7 @@ export default function Navbar() {
           />
           <div className="min-w-0 hidden sm:block">
             <span className="block truncate text-sm font-bold tracking-tight text-foreground">
-              {siteConfig.name}
+              {siteConfig.brand}
             </span>
             <span className="block truncate text-[10px] font-medium uppercase tracking-widest text-brand">
               {siteConfig.tagline}
