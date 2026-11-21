@@ -11,7 +11,7 @@ export default function ProjectCard({ project, featured = false }: ProjectCardPr
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface-elevated shadow-sm transition-all hover:border-brand/40 hover:shadow-md">
       <div className="border-b border-border bg-surface px-6 py-5">
-        <p className="text-xs font-semibold uppercase tracking-widest text-brand">
+        <p className="text-xs font-semibold uppercase tracking-widest text-gold-ink">
           {project.industry}
         </p>
         <h3 className={`mt-2 font-semibold text-foreground ${featured ? "text-xl" : "text-lg"}`}>
@@ -40,7 +40,7 @@ export default function ProjectCard({ project, featured = false }: ProjectCardPr
           <p className="mt-2 text-sm leading-relaxed text-muted">{project.solution}</p>
         </div>
         <div className="mt-auto rounded-xl border border-brand/20 bg-brand-light p-4 dark:border-brand/30 dark:bg-brand-light/50">
-          <h4 className="text-xs font-semibold uppercase tracking-widest text-brand">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-gold-ink">
             Impact
           </h4>
           <p className="mt-2 text-sm font-medium leading-relaxed text-foreground">

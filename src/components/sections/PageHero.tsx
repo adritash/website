@@ -10,11 +10,11 @@ export default function PageHero({ eyebrow, title, description }: PageHeroProps)
   return (
     <section className="relative overflow-hidden border-b border-border bg-surface py-16 sm:py-20 lg:py-24">
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(128,0,32,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(224,122,138,0.15),transparent_50%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(201,168,76,0.14),transparent_50%),radial-gradient(circle_at_bottom_left,rgba(128,0,32,0.06),transparent_45%)]"
         aria-hidden="true"
       />
       <Container className="relative">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-brand">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-gold-ink">
           {eyebrow}
         </p>
         <h1 className="max-w-4xl text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">

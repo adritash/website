@@ -30,7 +30,7 @@ export default function ResumePage() {
         <div className="mx-auto max-w-3xl">
           <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-6">
-              <ProfilePhoto size="md" />
+              <ProfilePhoto size="md" priority />
               <div>
                 <h2 className="text-2xl font-bold text-foreground">{profile.name}</h2>
                 <p className="mt-1 font-medium text-brand">{profile.headline}</p>
@@ -53,7 +53,7 @@ export default function ResumePage() {
           </div>
 
           <Card hover={false} className="mt-8">
-            <h3 className="text-sm font-semibold uppercase tracking-widest text-brand">
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-gold-ink">
               Summary
             </h3>
             <p className="mt-3 leading-relaxed text-muted">{profile.summary}</p>

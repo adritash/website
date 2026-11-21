@@ -50,7 +50,7 @@ export default function ChatWindow({
       <header className="flex items-start justify-between gap-3 border-b border-border bg-surface px-4 py-3.5">
         <div>
           <h2 id="adritash-ai-title" className="text-base font-semibold text-foreground">
-            Adritash AI
+            ADRITASH AI
           </h2>
           <p className="text-xs text-muted">AI architecture assistant</p>
         </div>
@@ -58,7 +58,7 @@ export default function ChatWindow({
           type="button"
           onClick={onClose}
           className="rounded-lg p-2 text-muted transition-colors hover:bg-surface-elevated hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label="Close Adritash AI assistant"
+          aria-label="Close ADRITASH AI assistant"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
@@ -76,7 +76,7 @@ export default function ChatWindow({
         {messages.length === 0 && (
           <div className="rounded-xl border border-border bg-surface-elevated p-4 text-sm leading-relaxed text-muted">
             Ask about cloud modernization, enterprise architecture, AI solutions, or how
-            Adritash can help your organization.
+            ADRITASH can help your organization.
           </div>
         )}
 
@@ -123,7 +123,7 @@ export default function ChatWindow({
       <ChatInput value={input} onChange={onInputChange} onSend={onSend} disabled={isBusy} />
 
       <footer className="border-t border-border bg-surface px-4 py-2 text-center text-[11px] text-muted">
-        <span>Adritash AI · Powered by Gemini</span>
+        <span>ADRITASH AI · Powered by Gemini</span>
         <span className="mx-2" aria-hidden="true">
           ·
         </span>

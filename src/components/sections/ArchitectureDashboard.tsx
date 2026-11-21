@@ -42,13 +42,11 @@ export default function ArchitectureDashboard({
   items = architectures,
 }: ArchitectureDashboardProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [hashReady, setHashReady] = useState(false);
   const selected = items.find((a) => a.id === selectedId);
 
   useEffect(() => {
     function syncFromHash() {
       setSelectedId(architectureIdFromHash(window.location.hash));
-      setHashReady(true);
     }
 
     syncFromHash();
@@ -69,10 +67,6 @@ export default function ArchitectureDashboard({
   function handleBack() {
     setSelectedId(null);
     setArchitectureHash(null);
-  }
-
-  if (!hashReady) {
-    return null;
   }
 
   if (selected) {

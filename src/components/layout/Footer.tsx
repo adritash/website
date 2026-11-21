@@ -1,6 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { profile } from "@/lib/data/profile";
-import { contact, footerLinks, siteConfig, social } from "@/lib/site";
+import { assets, contact, footerLinks, siteConfig, social } from "@/lib/site";
 
 export default function Footer() {
   return (
@@ -8,18 +9,19 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-brand-dark text-sm font-bold text-white">
-              {profile.initials}
-            </div>
-            <p className="text-xl font-bold text-white">{profile.name}</p>
-            <p className="mt-1 text-xs font-medium uppercase tracking-widest text-brand-light">
-              {profile.role}
-            </p>
-            <p className="mt-4 max-w-md text-sm leading-relaxed">
+            <Image
+              src={assets.logo}
+              alt={`${siteConfig.brand}: ${siteConfig.tagline}`}
+              width={1000}
+              height={793}
+              sizes="288px"
+              className="mb-5 w-72 max-w-full rounded-xl ring-1 ring-white/10"
+            />
+            <p className="mt-3 max-w-md text-sm leading-relaxed">
               {profile.tagline}
             </p>
             <p className="mt-2 text-xs text-white/60">
-              {siteConfig.brand} · Personal Portfolio
+              Founded by {profile.name}
             </p>
           </div>
 
@@ -55,7 +57,12 @@ export default function Footer() {
               </li>
               <li>
                 <a href={social.linkedin} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-white">
-                  LinkedIn
+                  Founder LinkedIn
+                </a>
+              </li>
+              <li>
+                <a href={social.linkedinCompany} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-white">
+                  ADRITASH on LinkedIn
                 </a>
               </li>
               <li>
@@ -68,7 +75,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 border-t border-border pt-6 text-sm">
-          <p>© {new Date().getFullYear()} {profile.name}. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {siteConfig.brand}. All rights reserved.</p>
         </div>
       </div>
     </footer>

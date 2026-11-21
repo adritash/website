@@ -13,7 +13,7 @@ const backgrounds = {
   white: "bg-background",
   surface: "bg-surface",
   dark: "bg-surface-dark text-white",
-  brand: "bg-brand text-white",
+  brand: "bg-surface-dark text-white",
 };
 
 export default function Section({

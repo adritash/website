@@ -24,7 +24,7 @@ function buildCsp(nonce: string, isDevelopment: boolean) {
   return directives.join("; ");
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const isDevelopment = process.env.NODE_ENV !== "production";
   const nonce = crypto.randomUUID();
   const csp = buildCsp(nonce, isDevelopment);

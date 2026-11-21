@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Fraunces, Inter, JetBrains_Mono, Montserrat } from "next/font/google";
 import { connection } from "next/server";
+import { Analytics } from "@vercel/analytics/next";
 import "@/styles/globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -17,43 +18,61 @@ const inter = Inter({
   display: "swap",
 });
 
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["600"],
+  variable: "--font-wordmark",
+  display: "swap",
+});
+
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#0a1211",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${profile.name} — ${siteConfig.tagline}`,
-    template: `%s | ${profile.name}`,
+    default: `${siteConfig.brand} — ${siteConfig.tagline}`,
+    template: `%s | ${siteConfig.brand}`,
   },
   description: siteConfig.description,
   keywords: [
+    "ADRITASH",
     "Dwaipayan Rajguru",
-    "enterprise architect",
+    "enterprise architecture consultancy",
     "cloud migration",
     "AI transformation",
     "technology leader",
     "FinTech",
     "Pune",
   ],
-  authors: [{ name: profile.name, url: siteConfig.url }],
-  creator: profile.name,
+  authors: [{ name: siteConfig.brand, url: siteConfig.url }],
+  creator: siteConfig.brand,
   openGraph: {
-    type: "profile",
+    type: "website",
     locale: "en_IN",
-    siteName: profile.name,
-    title: `${profile.name} — ${siteConfig.tagline}`,
+    siteName: siteConfig.brand,
+    title: `${siteConfig.brand} — ${siteConfig.tagline}`,
     description: siteConfig.description,
-    images: [{ url: assets.profilePhoto, width: 1024, height: 1536, alt: profile.name }],
+    images: [{ url: assets.ogImage, width: 1200, height: 630, alt: `${siteConfig.brand}: ${siteConfig.tagline}` }],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${profile.name} — ${siteConfig.tagline}`,
+    title: `${siteConfig.brand} — ${siteConfig.tagline}`,
     description: siteConfig.description,
-    images: [assets.profilePhoto],
+    images: [assets.ogImage],
   },
   robots: { index: true, follow: true },
 };
@@ -61,11 +80,11 @@ export const metadata: Metadata = {
 function JsonLd() {
   const schema = {
     "@context": "https://schema.org",
-    "@type": "Person",
-    name: profile.name,
-    jobTitle: profile.role,
-    description: profile.summary,
+    "@type": "Organization",
+    name: siteConfig.brand,
+    description: siteConfig.description,
     url: siteConfig.url,
+    logo: `${siteConfig.url}${assets.logo}`,
     image: `${siteConfig.url}${assets.profilePhoto}`,
     email: contact.email,
     telephone: contact.phone,
@@ -74,7 +93,14 @@ function JsonLd() {
       addressLocality: "Pune",
       addressCountry: "IN",
     },
-    sameAs: [social.linkedin, social.credly],
+    founder: {
+      "@type": "Person",
+      name: profile.name,
+      jobTitle: profile.role,
+      description: profile.summary,
+      sameAs: [social.linkedin, social.credly],
+    },
+    sameAs: [social.linkedinCompany, social.linkedin],
     knowsAbout: skillCategories.flatMap((c) => c.skills),
     hasCredential: certifications.map((c) => ({
       "@type": "EducationalOccupationalCredential",
@@ -105,7 +131,7 @@ export default async function RootLayout({
   await connection();
 
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable} h-full`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable} ${montserrat.variable} ${jetbrainsMono.variable} h-full`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <JsonLd />
@@ -118,6 +144,7 @@ export default async function RootLayout({
         </main>
         <Footer />
         <ChatWidget />
+        {process.env.VERCEL ? <Analytics /> : null}
       </body>
     </html>
   );

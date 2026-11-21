@@ -310,7 +310,7 @@ export default function ChatWidget() {
               </svg>
             </button>
             <p className="pr-6">
-              Hi! I&apos;m Adritash AI. I can help you explore cloud, AI, application
+              Hi! I&apos;m ADRITASH AI. I can help you explore cloud, AI, application
               architecture and modernization.
             </p>
             <button
@@ -352,8 +352,8 @@ export default function ChatWidget() {
           <button
             type="button"
             onClick={openChat}
-            className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand text-sm font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-brand-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            aria-label="Open Adritash AI assistant"
+            className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand text-sm font-bold text-brand-foreground shadow-lg transition-transform hover:scale-105 hover:bg-brand-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label="Open ADRITASH AI assistant"
             aria-expanded={isOpen}
           >
             <span aria-hidden="true">AI</span>

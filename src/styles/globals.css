@@ -1,34 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8eded;
-  --foreground: #3d1219;
-  --muted: #7a4048;
-  --border: #ddb8b8;
-  --brand: #800020;
-  --brand-dark: #5c0015;
-  --brand-light: #fce4e4;
-  --surface: #f0dede;
-  --surface-elevated: #fff5f5;
-  --surface-dark: #5c1a24;
-  --ring: #b91c1c;
+  /* ADRITASH palette, sampled from the logo (/logo/adritash-logo.jpg):
+     teal-black ink, silver-champagne wordmark and amber-gold light beam. */
+  --background: #f7f6f2;
+  --foreground: #0f1a19;
+  --muted: #4f5a58;
+  --border: #ddd8cc;
+  --brand: #0f1a19;
+  --brand-dark: #070d0c;
+  --brand-light: #ece9e0;
+  --brand-foreground: #ffffff;
+  --surface: #efece4;
+  --surface-elevated: #ffffff;
+  --surface-dark: #0a1211;
+  --ring: #8a5a1e;
+  --gold: #e3a95f;
+  --gold-light: #fcc77e;
+  --gold-ink: #8a5a1e;
+  --champagne: #e9d8bd;
+  --bronze: #c4ab91;
+  --burgundy: #800020;
+  --ink: #0a1211;
   --radius: 0.75rem;
   --header-height: 4rem;
   color-scheme: light;
 }
 
 .dark {
-  --background: #2a1215;
-  --foreground: #fce7e7;
-  --muted: #d4a5a5;
-  --border: #6b3038;
-  --brand: #e07a8a;
-  --brand-dark: #f5c0c8;
-  --brand-light: #4a2028;
-  --surface: #3d1a20;
-  --surface-elevated: #4d2228;
-  --surface-dark: #1f0a0e;
-  --ring: #e07a8a;
+  --background: #0a1211;
+  --foreground: #f3ece0;
+  --muted: #b3ab9c;
+  --border: #2a3330;
+  --brand: #e3a95f;
+  --brand-dark: #fcc77e;
+  --brand-light: #17221f;
+  --brand-foreground: #0a1211;
+  --surface: #101a18;
+  --surface-elevated: #16221f;
+  --surface-dark: #060c0b;
+  --ring: #fcc77e;
+  --gold-ink: #f0b866;
   color-scheme: dark;
 }
 
@@ -44,10 +56,19 @@
   --color-surface-elevated: var(--surface-elevated);
   --color-surface-dark: var(--surface-dark);
   --color-ring: var(--ring);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-ink: var(--gold-ink);
+  --color-champagne: var(--champagne);
+  --color-bronze: var(--bronze);
+  --color-burgundy: var(--burgundy);
+  --color-ink: var(--ink);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 0.25rem);
   --radius-2xl: calc(var(--radius) + 0.5rem);
   --font-sans: var(--font-inter);
+  --font-wordmark: var(--font-wordmark);
   --font-mono: var(--font-mono);
 }
 
@@ -67,6 +88,21 @@ html {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+/* Tools and dashboards keep the sans UI font */
+.app-shell h1,
+.app-shell h2,
+.app-shell h3 {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  letter-spacing: normal;
 }
 
 body {
@@ -290,5 +326,27 @@ body {
 
   .data-flow-particle {
     display: none;
+  }
+}
+
+/* ADRITASH wordmark: all caps, wide geometric sans, brushed champagne-silver. Matches the logo. */
+.wordmark {
+  font-family: var(--font-wordmark), var(--font-sans), system-ui, sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  line-height: 1;
+  color: var(--champagne);
+  background: linear-gradient(100deg, #c9c3b6 0%, #f4ecdc 38%, #f0c98c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+@media (forced-colors: active) {
+  .wordmark {
+    -webkit-text-fill-color: currentColor;
+    background: none;
   }
 }

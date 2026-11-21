@@ -27,7 +27,7 @@ export default function AboutPage() {
       <Section background="white">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[auto_1fr] lg:gap-16">
           <div className="flex justify-center lg:justify-start">
-            <ProfilePhoto size="lg" />
+            <ProfilePhoto size="lg" priority />
           </div>
           <div>
             <h2 className="text-2xl font-bold text-foreground">My story</h2>

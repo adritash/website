@@ -15,18 +15,19 @@ export function createPageMetadata({
   const url = `${siteConfig.url}${path}`;
   const fullTitle =
     path === "/" || path === ""
-      ? `${siteConfig.name} — ${siteConfig.tagline}`
-      : `${title} | ${siteConfig.name}`;
+      ? `${siteConfig.brand} — ${siteConfig.tagline}`
+      : `${title} | ${siteConfig.brand}`;
 
   return {
-    title: fullTitle,
+    // absolute: fullTitle already includes the name, so skip the layout's "%s | name" template
+    title: { absolute: fullTitle },
     description,
     alternates: { canonical: url },
     openGraph: {
       type: "website",
       locale: "en_IN",
       url,
-      siteName: siteConfig.name,
+      siteName: siteConfig.brand,
       title: fullTitle,
       description,
     },

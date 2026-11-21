@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "inverse";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "inverse" | "gold" | "outline-light";
 type ButtonSize = "sm" | "md" | "lg";
 
 type ButtonProps = {
@@ -19,11 +19,15 @@ type ButtonProps = {
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "bg-brand text-white hover:bg-brand-dark border border-transparent shadow-sm",
+    "bg-brand text-brand-foreground hover:bg-brand-dark border border-transparent shadow-sm",
   secondary:
     "bg-surface-elevated text-foreground border border-border hover:border-brand/40 hover:bg-surface",
   ghost:
     "bg-transparent text-foreground border border-border hover:border-brand hover:text-brand",
+  gold:
+    "bg-gold text-ink hover:bg-gold-light border border-transparent shadow-sm",
+  "outline-light":
+    "bg-transparent text-white border border-white/30 hover:border-gold hover:text-gold",
   inverse:
     "bg-surface-elevated text-brand border border-transparent hover:bg-brand-light",
 };

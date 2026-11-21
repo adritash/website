@@ -9,12 +9,13 @@ import ProfilePhoto from "@/components/ui/ProfilePhoto";
 import Section from "@/components/ui/Section";
 import SectionHeader from "@/components/ui/SectionHeader";
 import Badge from "@/components/ui/Badge";
-import { blogPosts } from "@/lib/data/insights";
+import { getAllPosts } from "@/lib/content/posts";
 import { profile, principles, stats } from "@/lib/data/profile";
 import { projects } from "@/lib/data/projects";
 import { skillCategories } from "@/lib/data/skills";
 import { createPageMetadata } from "@/lib/metadata";
-import { assets } from "@/lib/site";
+import Wordmark from "@/components/ui/Wordmark";
+import { assets, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = createPageMetadata({
   title: "Home",
@@ -22,43 +23,46 @@ export const metadata: Metadata = createPageMetadata({
   path: "/",
 });
 
-export default function HomePage() {
+export default async function HomePage() {
+  const blogPosts = (await getAllPosts()).slice(0, 2);
   const featuredProjects = projects.slice(0, 2);
   const previewSkills = skillCategories.slice(0, 4);
 
   return (
     <>
-      <DataFlowBanner />
-
-      <section className="relative overflow-hidden border-b border-border">
+      <section className="relative overflow-hidden border-b border-white/10 bg-ink text-white">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(128,0,32,0.12),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(224,122,138,0.18),transparent_60%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(232,185,126,0.30),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(175,132,86,0.12),transparent_50%)]"
           aria-hidden="true"
         />
-        <Container className="relative py-8 sm:py-10 lg:py-12">
+        <Container className="relative py-10 sm:py-12 lg:py-16">
           <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-[1fr_auto] lg:gap-12">
             <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-brand">
-                {profile.location} · 15+ Years
-              </p>
-              <h1 className="text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-                {profile.name}
+              <h1 className="flex flex-col items-start gap-3">
+                <span className="sr-only">{siteConfig.brand}: {siteConfig.tagline}</span>
+                <span aria-hidden="true">
+                  <Wordmark className="text-4xl sm:text-5xl lg:text-6xl" />
+                </span>
               </h1>
-              <p className="mt-3 text-lg font-medium text-brand sm:text-xl">
-                {profile.role}
+              <p className="mt-6 flex items-center gap-3 text-lg font-medium text-champagne sm:text-xl">
+                <span className="h-px w-10 shrink-0 bg-gradient-to-r from-transparent to-gold" aria-hidden="true" />
+                {siteConfig.tagline}
               </p>
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-muted">
+              <p className="mt-2 text-sm font-medium text-white/60">
+                {profile.location} · Founded by {profile.name}, {profile.role}
+              </p>
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-white/75">
                 {profile.tagline}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button href="/projects">
-                  View Projects
+                <Button href="/contact" size="lg" variant="gold">
+                  Book a call
                 </Button>
-                <Button href={assets.resumePdf} download={assets.resumeFilename} variant="secondary">
-                  Download Resume
+                <Button href="/projects" size="lg" variant="outline-light">
+                  View our work
                 </Button>
-                <Button href="/contact" variant="ghost">
-                  Get in Touch
+                <Button href={assets.resumePdf} download={assets.resumeFilename} size="lg" variant="outline-light">
+                  Founder resume
                 </Button>
               </div>
             </div>
@@ -83,6 +87,8 @@ export default function HomePage() {
           ))}
         </div>
       </Section>
+
+      <DataFlowBanner />
 
       <Section background="white">
         <SectionHeader
@@ -180,7 +186,7 @@ export default function HomePage() {
         </div>
       </Section>
 
-      <section className="border-t border-border bg-brand py-16 sm:py-20">
+      <section className="border-t border-border bg-surface-dark py-16 sm:py-20">
         <Container className="text-center">
           <h2 className="text-3xl font-bold text-white sm:text-4xl">
             Let&apos;s connect

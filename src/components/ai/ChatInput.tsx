@@ -39,7 +39,7 @@ export default function ChatInput({
   return (
     <div className="flex items-end gap-2 border-t border-border bg-surface-elevated p-3">
       <label htmlFor="adritash-ai-input" className="sr-only">
-        Message Adritash AI
+        Message ADRITASH AI
       </label>
       <textarea
         ref={textareaRef}
@@ -57,7 +57,7 @@ export default function ChatInput({
         onClick={onSend}
         disabled={disabled || !value.trim()}
         aria-label="Send message"
-        className="inline-flex h-[42px] shrink-0 items-center justify-center rounded-lg bg-brand px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-[42px] shrink-0 items-center justify-center rounded-lg bg-brand px-4 text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50"
       >
         Send
       </button>

@@ -13,7 +13,7 @@ type CTABandProps = {
 
 const variants = {
   light: "bg-brand-light border border-border",
-  brand: "bg-brand text-white",
+  brand: "bg-surface-dark text-white",
   dark: "bg-surface-dark text-white",
 };
 

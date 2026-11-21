@@ -196,7 +196,7 @@ export async function POST(request: Request) {
 
     const [notificationResult, confirmationResult] = await Promise.all([
       resend.emails.send({
-        from: "Adritash <contact@adritash.com>",
+        from: "ADRITASH <contact@adritash.com>",
         to: process.env.CONTACT_EMAIL ?? contact.email,
         replyTo: email,
         subject: `[Website] ${safeSubject}`,
@@ -218,9 +218,9 @@ export async function POST(request: Request) {
         `,
       }),
       resend.emails.send({
-        from: "Adritash <contact@adritash.com>",
+        from: "ADRITASH <contact@adritash.com>",
         to: email,
-        subject: "Thank you for contacting Adritash",
+        subject: "Thank you for contacting ADRITASH",
         text: [
           `Hi ${name},`,
           "",

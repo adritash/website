@@ -13,16 +13,17 @@ const cloudBadgeStyles = {
 
 const flowItems = architectures.filter((arch) => arch.diagramImage);
 
-// Repeat items so the track stays filled on wide screens.
-const marqueeItems = [...flowItems, ...flowItems, ...flowItems];
+// Each copy of the track holds the full set (wider than any screen); the second copy makes the loop seamless.
+const marqueeItems = flowItems;
 
 type ArchitectureFlowCardProps = {
   arch: Architecture;
   onHoverStart: () => void;
   onHoverEnd: () => void;
+  priority?: boolean;
 };
 
-function ArchitectureFlowCard({ arch, onHoverStart, onHoverEnd }: ArchitectureFlowCardProps) {
+function ArchitectureFlowCard({ arch, onHoverStart, onHoverEnd, priority = false }: ArchitectureFlowCardProps) {
   return (
     <Link
       href={`/architecture#${arch.id}`}
@@ -30,15 +31,16 @@ function ArchitectureFlowCard({ arch, onHoverStart, onHoverEnd }: ArchitectureFl
       onMouseLeave={onHoverEnd}
       onFocus={onHoverStart}
       onBlur={onHoverEnd}
-      className="group relative w-[22rem] shrink-0 overflow-hidden rounded-xl border border-brand/40 bg-[#1a0a0e] shadow-lg ring-1 ring-white/10 transition-all hover:z-10 hover:scale-[1.02] hover:border-brand/70 hover:ring-brand/30 sm:w-[28rem] lg:w-[36rem] xl:w-[42rem]"
+      className="group relative w-[22rem] shrink-0 overflow-hidden rounded-xl border border-brand/40 bg-ink shadow-lg ring-1 ring-white/10 transition-all hover:z-10 hover:scale-[1.02] hover:border-brand/70 hover:ring-brand/30 sm:w-[28rem] lg:w-[36rem] xl:w-[42rem]"
     >
-      <div className="relative aspect-[16/10] w-full bg-[#1f1014]">
+      <div className="relative aspect-[16/10] w-full bg-surface-dark">
         {arch.diagramImage && (
           <Image
             src={arch.diagramImage}
             alt={arch.diagramAlt ?? `${arch.title} architecture diagram`}
             fill
-            quality={92}
+            quality={80}
+            priority={priority}
             sizes="(max-width: 640px) 352px, (max-width: 1024px) 448px, (max-width: 1280px) 576px, 672px"
             className="object-contain object-center p-1.5 transition-transform duration-500 group-hover:scale-[1.02]"
           />
@@ -83,7 +85,7 @@ export default function DataFlowBanner() {
       aria-label="Architecture data flow showcase"
     >
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(128,0,32,0.12),transparent_70%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,168,76,0.10),transparent_70%)]"
         aria-hidden="true"
       />
 
@@ -94,7 +96,7 @@ export default function DataFlowBanner() {
           </p>
           <div className="flex items-center gap-2">
             {paused && (
-              <span className="text-xs font-medium uppercase tracking-wider text-brand-light">
+              <span className="text-xs font-medium uppercase tracking-wider text-gold-light">
                 Paused
               </span>
             )}
@@ -120,13 +122,14 @@ export default function DataFlowBanner() {
               {marqueeItems.map((arch, index) => (
                 <ArchitectureFlowCard
                   key={`a-${arch.id}-${index}`}
+                  priority={index < 2}
                   arch={arch}
                   onHoverStart={handleHoverStart}
                   onHoverEnd={handleHoverEnd}
                 />
               ))}
             </div>
-            <div className="flex shrink-0 items-center gap-5 pr-5" aria-hidden="true">
+            <div className="flex shrink-0 items-center gap-5 pr-5" aria-hidden="true" inert>
               {marqueeItems.map((arch, index) => (
                 <ArchitectureFlowCard
                   key={`b-${arch.id}-${index}`}
