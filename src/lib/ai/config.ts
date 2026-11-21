@@ -1,4 +1,4 @@
-export const GEMINI_MODEL = "gemini-3.8-flash";
+export const GEMINI_MODEL = "gemini-3.6-flash";
 
 export const MAX_CHAT_MESSAGE_LENGTH = 2000;
 export const MAX_INTERACTION_ID_LENGTH = 128;
