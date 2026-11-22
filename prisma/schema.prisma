@@ -1,0 +1,478 @@
+// Adritash Pulse database schema.
+// All user-owned tables carry userId with a foreign key and are always queried with it.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/pulse/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+  DELETION_REQUESTED
+  DELETED
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum MessageStatus {
+  RECEIVED
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  SEND_UNCERTAIN
+}
+
+enum MessageCategory {
+  SERVICE
+  UTILITY
+  MARKETING
+  AUTHENTICATION
+}
+
+enum Exchange {
+  NSE
+  BSE
+}
+
+enum AlertType {
+  RECURRING_UPDATE
+  DAILY_CLOSE
+  PRICE_ABOVE
+  PRICE_BELOW
+  PERCENT_MOVE
+}
+
+enum AlertStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+}
+
+enum TriggerState {
+  ARMED
+  TRIGGERED
+}
+
+enum ExecutionStatus {
+  QUEUED
+  RUNNING
+  SENT
+  NOT_TRIGGERED
+  SKIPPED_MARKET_CLOSED
+  SKIPPED_CALENDAR_UNAVAILABLE
+  SKIPPED_NO_CHANGE
+  SKIPPED_INACTIVE
+  SKIPPED_LIMIT
+  SKIPPED_NO_CONSENT
+  SKIPPED_STALE_DATA
+  SKIPPED_MISSED
+  FAILED
+}
+
+enum SubscriptionStatus {
+  CREATED
+  AUTHENTICATED
+  ACTIVE
+  PENDING
+  HALTED
+  CANCELLED
+  COMPLETED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  CREATED
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+}
+
+enum ConsentType {
+  PRIVACY_NOTICE
+  RECURRING_UPDATES
+  PROACTIVE_MESSAGES
+}
+
+enum WebhookStatus {
+  RECEIVED
+  QUEUED
+  PROCESSED
+  FAILED
+  IGNORED
+}
+
+enum AdminRole {
+  OWNER
+  OPERATOR
+  VIEWER
+}
+
+enum ActorType {
+  USER
+  ADMIN
+  SYSTEM
+}
+
+model User {
+  id                 String     @id @default(cuid())
+  phoneHash          String     @unique
+  phoneEncrypted     String
+  phoneLast4         String
+  displayName        String?
+  timezone           String     @default("Asia/Kolkata")
+  status             UserStatus @default(ACTIVE)
+  // Start of the WhatsApp customer-service window (last inbound message).
+  lastInboundAt      DateTime?
+  welcomedAt         DateTime?
+  // Global opt-out of proactive messages ("STOP").
+  proactiveOptOutAt  DateTime?
+  deletionRequestedAt DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  conversations Conversation[]
+  messages      Message[]
+  watchlist     WatchlistItem[]
+  alerts        Alert[]
+  subscriptions Subscription[]
+  usage         UsageRecord[]
+  payments      Payment[]
+  consents      ConsentRecord[]
+  loginTokens   LoginToken[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Conversation {
+  id                     String   @id @default(cuid())
+  userId                 String
+  whatsappConversationId String?
+  // Pending clarification / confirmation state, validated by Zod on read.
+  context                Json?
+  contextExpiresAt       DateTime?
+  lastMessageAt          DateTime @default(now())
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@unique([userId])
+}
+
+model Message {
+  id                String           @id @default(cuid())
+  userId            String
+  conversationId    String?
+  providerMessageId String?          @unique
+  // Unique key that prevents a retried job from sending twice.
+  idempotencyKey    String?          @unique
+  direction         MessageDirection
+  messageType       String
+  // Body text; purged after the retention window.
+  content           String?
+  contentPurgedAt   DateTime?
+  status            MessageStatus
+  category          MessageCategory?
+  templateName      String?
+  alertId           String?
+  billable          Boolean?
+  pricingCategory   String?
+  estimatedCostInr  Decimal?         @db.Decimal(10, 4)
+  failureCode       String?
+  failureReason     String?
+  correlationId     String?
+  receivedAt        DateTime?
+  sentAt            DateTime?
+  statusUpdatedAt   DateTime?
+  createdAt         DateTime         @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  alert        Alert?        @relation(fields: [alertId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([direction, createdAt])
+  @@index([status, createdAt])
+}
+
+model Instrument {
+  id          String   @id @default(cuid())
+  symbol      String
+  exchange    Exchange
+  companyName String
+  isin        String?
+  // Lower-case alternative names users type ("infosys", "ril").
+  aliases     String[]
+  active      Boolean  @default(true)
+  source      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([symbol, exchange])
+  @@index([active])
+}
+
+model WatchlistItem {
+  id          String   @id @default(cuid())
+  userId      String
+  symbol      String
+  exchange    Exchange
+  companyName String
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, symbol, exchange])
+  @@index([userId])
+}
+
+model Alert {
+  id               String       @id @default(cuid())
+  userId           String
+  symbol           String
+  exchange         Exchange
+  companyName      String
+  alertType        AlertType
+  frequencyMinutes Int?
+  thresholdValue   Decimal?     @db.Decimal(14, 4)
+  timezone         String       @default("Asia/Kolkata")
+  status           AlertStatus  @default(ACTIVE)
+  triggerState     TriggerState @default(ARMED)
+  // Only send recurring updates when the price changed since the last one.
+  onlyOnChange     Boolean      @default(false)
+  lastNotifiedPrice Decimal?    @db.Decimal(14, 4)
+  // Provider timestamp of the data in the last notification (dedupes identical updates).
+  lastNotifiedDataAt DateTime?
+  consentAt        DateTime
+  nextRunAt        DateTime?
+  lastRunAt        DateTime?
+  expiresAt        DateTime?
+  cancelledAt      DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  executions AlertExecution[]
+  messages   Message[]
+
+  @@index([status, nextRunAt])
+  @@index([userId, status])
+}
+
+model AlertExecution {
+  id                  String          @id @default(cuid())
+  alertId             String
+  scheduledFor        DateTime
+  executedAt          DateTime?
+  status              ExecutionStatus
+  attempts            Int             @default(0)
+  marketDataTimestamp DateTime?
+  observedPrice       Decimal?        @db.Decimal(14, 4)
+  messageId           String?
+  errorCode           String?
+  errorMessage        String?
+  estimatedCostInr    Decimal?        @db.Decimal(10, 4)
+  createdAt           DateTime        @default(now())
+
+  alert Alert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  @@unique([alertId, scheduledFor])
+  @@index([status, createdAt])
+}
+
+model MarketHoliday {
+  id          String   @id @default(cuid())
+  exchange    Exchange
+  date        DateTime @db.Date
+  description String
+  source      String
+  createdAt   DateTime @default(now())
+
+  @@unique([exchange, date])
+}
+
+// Records which (exchange, year) calendars are verified and loaded.
+model MarketCalendarYear {
+  id         String   @id @default(cuid())
+  exchange   Exchange
+  year       Int
+  source     String
+  verifiedAt DateTime @default(now())
+
+  @@unique([exchange, year])
+}
+
+model Plan {
+  id             String   @id @default(cuid())
+  code           String   @unique
+  name           String
+  pricePaise     Int
+  currency       String   @default("INR")
+  interval       String   @default("monthly")
+  // Quotas, validated by Zod (see subscriptions/plans.ts).
+  limits         Json
+  isDefault      Boolean  @default(false)
+  active         Boolean  @default(true)
+  providerPlanId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id                     String             @id @default(cuid())
+  userId                 String
+  planId                 String
+  status                 SubscriptionStatus
+  provider               String
+  providerSubscriptionId String?            @unique
+  paymentLinkUrl         String?
+  startAt                DateTime?
+  endAt                  DateTime?
+  cancelledAt            DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan     Plan      @relation(fields: [planId], references: [id])
+  payments Payment[]
+
+  @@index([userId, status])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  userId            String
+  subscriptionId    String?
+  provider          String
+  providerPaymentId String        @unique
+  amountPaise       Int
+  currency          String        @default("INR")
+  status            PaymentStatus
+  failureReason     String?
+  invoiceId         String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+}
+
+model UsageRecord {
+  id               String   @id @default(cuid())
+  userId           String?
+  // e.g. QUOTE_QUERY, AI_REQUEST, MARKET_DATA_CALL, WHATSAPP_OUTBOUND
+  usageType        String
+  quantity         Int      @default(1)
+  estimatedCostInr Decimal  @default(0) @db.Decimal(10, 4)
+  metadata         Json?
+  createdAt        DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, usageType, createdAt])
+  @@index([usageType, createdAt])
+}
+
+model ConsentRecord {
+  id                 String      @id @default(cuid())
+  userId             String
+  consentType        ConsentType
+  consentTextVersion String
+  consentedAt        DateTime    @default(now())
+  revokedAt          DateTime?
+  source             String
+  // Optional reference, e.g. the alert this consent covers.
+  scopeRef           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, consentType])
+}
+
+model WebhookEvent {
+  id              String        @id @default(cuid())
+  provider        String
+  providerEventId String
+  eventType       String
+  payloadHash     String
+  payload         Json?
+  status          WebhookStatus @default(RECEIVED)
+  attempts        Int           @default(0)
+  error           String?
+  receivedAt      DateTime      @default(now())
+  processedAt     DateTime?
+
+  @@unique([provider, providerEventId])
+  @@index([status, receivedAt])
+}
+
+model LoginToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  role         AdminRole @default(VIEWER)
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model AuditLog {
+  id            String    @id @default(cuid())
+  actorType     ActorType
+  actorId       String?
+  action        String
+  resourceType  String?
+  resourceId    String?
+  outcome       String
+  security      Boolean   @default(false)
+  metadata      Json?
+  correlationId String?
+  createdAt     DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([security, createdAt])
+  @@index([actorType, actorId])
+}
+
+model ProviderHealthSample {
+  id        String   @id @default(cuid())
+  provider  String
+  kind      String
+  ok        Boolean
+  latencyMs Int
+  errorCode String?
+  createdAt DateTime @default(now())
+
+  @@index([provider, createdAt])
+}

@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // Always put page metadata in <head> (not streamed after the body) so every client and crawler sees it.
   htmlLimitedBots: /.*/,
+  // Pulse: load the queue library from node_modules at runtime instead of bundling it
+  // (avoids bundling its optional Valkey client).
+  serverExternalPackages: ["bullmq"],
   // outputFileTracingRoot: path.join(__dirname, ".."),
 
   async redirects() {

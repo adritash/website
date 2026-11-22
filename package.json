@@ -4,28 +4,50 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
+    "build": "prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "test": "playwright test"
+    "test": "playwright test",
+    "postinstall": "prisma generate",
+    "test:pulse": "vitest run",
+    "test:pulse:watch": "vitest",
+    "pulse:services": "./scripts/pulse/dev-services.sh start",
+    "pulse:migrate": "prisma migrate deploy",
+    "pulse:migrate:dev": "prisma migrate dev",
+    "pulse:seed": "prisma db seed",
+    "pulse:worker": "tsx --tsconfig tsconfig.json src/pulse/workers/main.ts",
+    "pulse:create-admin": "tsx --tsconfig tsconfig.json scripts/pulse/create-admin.ts",
+    "typecheck": "tsc --noEmit",
+    "pulse:simulate": "tsx --tsconfig tsconfig.json scripts/pulse/simulate-message.ts"
   },
   "dependencies": {
     "@google/genai": "^2.16.0",
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "@vercel/analytics": "^2.0.1",
+    "bullmq": "^6.7.8",
+    "ioredis": "^6.0.0",
     "next": "^16.2.11",
+    "pg": "^8.23.1",
+    "prisma": "^7.10.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "resend": "^6.18.0"
+    "resend": "^6.18.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^18.0.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vitest": "^4.1.12"
   }
 }
