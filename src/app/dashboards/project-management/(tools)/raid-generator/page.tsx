@@ -7,6 +7,7 @@ import RaidDetailModal from "@/components/pm/raid/RaidDetailModal";
 import RaidExportModal from "@/components/pm/raid/RaidExportModal";
 import RaidManualAddModal from "@/components/pm/raid/RaidManualAddModal";
 import RaidRegisterTable from "@/components/pm/raid/RaidRegisterTable";
+import RaidReportPreview from "@/components/pm/raid/RaidReportPreview";
 import RaidSummaryCards from "@/components/pm/raid/RaidSummaryCards";
 import RiskMatrix5x5 from "@/components/pm/raid/RiskMatrix5x5";
 import {
@@ -66,6 +67,10 @@ export default function RaidGeneratorPage() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isManualAddOpen, setIsManualAddOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  // Don't persist until saved data has been restored, otherwise the sample
+  // data can overwrite it (React runs mount effects twice in development).
+  const [hasRestored, setHasRestored] = useState(false);
 
   const resultsRef = useRef<HTMLElement>(null);
   const setupRef = useRef<HTMLElement>(null);
@@ -93,25 +98,28 @@ export default function RaidGeneratorPage() {
     } catch (e) {
       console.warn("Could not parse saved RAID data from localStorage", e);
     }
+    setHasRestored(true);
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   // 2. Persist to localStorage on change
   useEffect(() => {
+    if (!hasRestored) return;
     try {
       localStorage.setItem(STORAGE_KEY_CONTEXT, JSON.stringify(projectContext));
     } catch (e) {
       console.warn("Failed to persist project context", e);
     }
-  }, [projectContext]);
+  }, [projectContext, hasRestored]);
 
   useEffect(() => {
+    if (!hasRestored) return;
     try {
       localStorage.setItem(STORAGE_KEY_RECORDS, JSON.stringify(records));
     } catch (e) {
       console.warn("Failed to persist RAID records", e);
     }
-  }, [records]);
+  }, [records, hasRestored]);
 
   // Check if minimal required baseline is filled
   const isReadyToGenerate =
@@ -672,10 +680,10 @@ export default function RaidGeneratorPage() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => setIsExportOpen(true)}
+                        onClick={() => setIsReportOpen(true)}
                         className="rounded-xl bg-gold px-5 py-2.5 text-sm font-bold text-black shadow-lg shadow-gold/20 hover:brightness-110"
                       >
-                        Export report
+                        Preview PDF report
                       </button>
                     </div>
 
@@ -739,6 +747,14 @@ export default function RaidGeneratorPage() {
       <RaidExportModal
         isOpen={isExportOpen}
         onClose={() => setIsExportOpen(false)}
+        projectContext={projectContext}
+        records={records}
+        onOpenReport={() => setIsReportOpen(true)}
+      />
+
+      <RaidReportPreview
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
         projectContext={projectContext}
         records={records}
       />

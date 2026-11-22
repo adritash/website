@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { escapeHtml, printRaidReport, raidFileSlug } from "@/lib/pm/raid-report";
+import { escapeHtml, raidFileSlug } from "@/lib/pm/raid-report";
 import { ProjectContext, RaidRecord } from "@/lib/pm/raid-types";
 
 interface RaidExportModalProps {
@@ -9,6 +9,8 @@ interface RaidExportModalProps {
   onClose: () => void;
   projectContext: ProjectContext;
   records: RaidRecord[];
+  /** Opens the paginated report preview (from which the PDF is saved). */
+  onOpenReport: () => void;
 }
 
 export default function RaidExportModal({
@@ -16,6 +18,7 @@ export default function RaidExportModal({
   onClose,
   projectContext,
   records,
+  onOpenReport,
 }: RaidExportModalProps) {
   const [copied, setCopied] = useState(false);
 
@@ -215,9 +218,10 @@ export default function RaidExportModal({
     URL.revokeObjectURL(url);
   };
 
-  // 3. PDF: print a dedicated light-themed report (not the app UI)
+  // 3. PDF: open the paginated executive report preview
   const handlePrint = () => {
-    printRaidReport(projectContext, records);
+    onClose();
+    onOpenReport();
   };
 
   // 4. Copy as JSON
@@ -298,9 +302,9 @@ export default function RaidExportModal({
             </svg>
           </span>
           <span>
-            <span className="block text-base font-bold">PDF report</span>
+            <span className="block text-base font-bold">Executive PDF report</span>
             <span className="block text-xs text-black/70">
-              Opens the print dialog. Choose &quot;Save as PDF&quot; as the destination.
+              Preview the branded A4 report page by page, then save it as a PDF.
             </span>
           </span>
         </button>
