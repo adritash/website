@@ -21,7 +21,7 @@ export default function Footer() {
               {profile.tagline}
             </p>
             <p className="mt-2 text-xs text-white/60">
-              Founded by {profile.name}
+              Founded by {profile.name} · Preview test change
             </p>
           </div>
 
