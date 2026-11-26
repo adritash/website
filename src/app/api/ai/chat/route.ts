@@ -13,7 +13,14 @@ import {
   type ChatStreamChunk,
 } from "@/lib/ai/chat-service";
 import { applyRateLimit } from "@/lib/rate-limit";
+import {
+  forbiddenResponse,
+  getClientIp,
+  isSameSiteRequest,
+  readJsonLimited,
+} from "@/lib/api-guard";
 
+const MAX_CHAT_BODY_BYTES = 8 * 1024;
 const GENERIC_ERROR =
   "I'm having trouble processing your request right now. Please try again.";
 const RATE_LIMIT_ERROR = "Too many requests. Please try again shortly.";
@@ -23,15 +30,6 @@ type ChatRequestBody = {
   previousInteractionId?: unknown;
   stream?: unknown;
 };
-
-function getClientIp(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    return forwarded.split(",")[0]?.trim() || "unknown";
-  }
-
-  return request.headers.get("x-real-ip") || "unknown";
-}
 
 function jsonError(message: string, status: number, headers?: HeadersInit) {
   return NextResponse.json({ error: message }, { status, headers });
@@ -128,13 +126,18 @@ function createSseStream(generator: AsyncGenerator<ChatStreamChunk>) {
 }
 
 export async function POST(request: NextRequest) {
-  let body: ChatRequestBody;
+  if (!isSameSiteRequest(request)) {
+    return forbiddenResponse("error");
+  }
 
-  try {
-    body = (await request.json()) as ChatRequestBody;
-  } catch {
+  const parsed = await readJsonLimited(request, MAX_CHAT_BODY_BYTES);
+  if (!parsed.ok) {
+    return jsonError(parsed.error, parsed.status);
+  }
+  if (typeof parsed.data !== "object" || parsed.data === null) {
     return jsonError("Invalid request body.", 400);
   }
+  const body = parsed.data as ChatRequestBody;
 
   const validation = validateChatRequest(body);
   if (!validation.ok) {

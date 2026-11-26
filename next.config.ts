@@ -7,6 +7,25 @@ const nextConfig: NextConfig = {
   htmlLimitedBots: /.*/,
   // outputFileTracingRoot: path.join(__dirname, ".."),
 
+  // Baseline security headers for API routes. The page-level CSP lives in
+  // proxy.ts, which intentionally skips /api.
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'none'; frame-ancestors 'none'",
+          },
+        ],
+      },
+    ];
+  },
+
   async redirects() {
     return [
       { source: "/services", destination: "/skills", permanent: true },

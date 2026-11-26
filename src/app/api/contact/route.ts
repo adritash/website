@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { applyRateLimit } from "@/lib/rate-limit";
+import {
+  getClientIp,
+  isSameSiteRequest,
+  readJsonLimited,
+} from "@/lib/api-guard";
 import { contact } from "@/lib/site";
 
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -13,9 +18,14 @@ const MAX_MESSAGE_LENGTH = 5000;
 const MAX_CONTENT_LENGTH = 10_000;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 5;
+// The confirmation email goes to whatever address the visitor typed, so limit
+// how often one recipient can be emailed and how many emails go out overall.
+const RECIPIENT_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const RECIPIENT_LIMIT_MAX = 2;
+const GLOBAL_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const GLOBAL_LIMIT_MAX = 60;
 const EMAIL_REGEX =
   /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$/;
-const configuredOrigin = process.env.NEXT_PUBLIC_SITE_URL;
 type ContactPayload = {
   name: unknown;
   email: unknown;
@@ -58,37 +68,6 @@ function escapeHtml(value: string) {
 
 function normalizeText(value: string) {
   return value.replace(/\r\n/g, "\n").trim();
-}
-
-function validateOrigin(request: Request) {
-  const allowedOrigin = configuredOrigin || new URL(request.url).origin;
-
-  const origin = request.headers.get("origin");
-  const referer = request.headers.get("referer");
-
-  if (origin) {
-    return origin === allowedOrigin;
-  }
-
-  if (referer) {
-    try {
-      return new URL(referer).origin === allowedOrigin;
-    } catch {
-      return false;
-    }
-  }
-
-  return false;
-}
-
-function getClientIp(request: Request) {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-
-  if (forwardedFor) {
-    return forwardedFor.split(",")[0]?.trim() || "unknown";
-  }
-
-  return request.headers.get("x-real-ip") || "unknown";
 }
 
 function validatePayload(payload: ContactPayload): ValidationResult {
@@ -153,12 +132,7 @@ export async function POST(request: Request) {
       return jsonError("Unsupported content type.", 415);
     }
 
-    const contentLength = Number(request.headers.get("content-length") || "0");
-    if (contentLength > MAX_CONTENT_LENGTH) {
-      return jsonError("Request payload is too large.", 413);
-    }
-
-    if (!validateOrigin(request)) {
+    if (!isSameSiteRequest(request)) {
       return jsonError("Request origin is not allowed.", 403);
     }
 
@@ -182,9 +156,38 @@ export async function POST(request: Request) {
       );
     }
 
-    const validation = validatePayload((await request.json()) as ContactPayload);
+    const body = await readJsonLimited(request, MAX_CONTENT_LENGTH);
+    if (!body.ok) {
+      return jsonError(body.error, body.status);
+    }
+    if (typeof body.data !== "object" || body.data === null) {
+      return jsonError("Invalid request payload.", 400);
+    }
+
+    const validation = validatePayload(body.data as ContactPayload);
     if (!validation.ok) {
       return jsonError(validation.error, 400);
+    }
+
+    const [recipientLimit, globalLimit] = await Promise.all([
+      applyRateLimit({
+        key: `contact-recipient:${validation.data.email}`,
+        limit: RECIPIENT_LIMIT_MAX,
+        windowMs: RECIPIENT_LIMIT_WINDOW_MS,
+      }),
+      applyRateLimit({
+        key: "contact-global",
+        limit: GLOBAL_LIMIT_MAX,
+        windowMs: GLOBAL_LIMIT_WINDOW_MS,
+      }),
+    ]);
+
+    if (!recipientLimit.allowed || !globalLimit.allowed) {
+      return jsonError(
+        "Too many requests. Please try again later.",
+        429,
+        { "Retry-After": String(Math.max(recipientLimit.retryAfterSeconds, globalLimit.retryAfterSeconds)) }
+      );
     }
 
     const { name, email, subject, message } = validation.data;
@@ -222,7 +225,7 @@ export async function POST(request: Request) {
         to: email,
         subject: "Thank you for contacting ADRITASH",
         text: [
-          `Hi ${name},`,
+          "Hello,",
           "",
           "Thank you for reaching out through my website.",
           "I have received your message and will get back to you as soon as possible.",
@@ -231,7 +234,7 @@ export async function POST(request: Request) {
           "Dwaipayan Rajguru",
         ].join("\n"),
         html: `
-          <h2>Hi ${safeName},</h2>
+          <h2>Hello,</h2>
           <p>Thank you for reaching out through my website.</p>
           <p>I have received your message and will get back to you as soon as possible.</p>
           <p>Regards,<br> Dwaipayan Rajguru</p>

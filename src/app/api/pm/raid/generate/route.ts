@@ -3,6 +3,13 @@ import { getGeminiClient } from "@/lib/ai/gemini";
 import { GEMINI_MODEL } from "@/lib/ai/config";
 import { applyRateLimit } from "@/lib/rate-limit";
 import {
+  capText,
+  forbiddenResponse,
+  getClientIp,
+  isSameSiteRequest,
+  readJsonLimited,
+} from "@/lib/api-guard";
+import {
   calculateRiskScore,
   CATEGORY_STATUSES,
 } from "@/lib/pm/raid-constants";
@@ -17,6 +24,12 @@ import {
 
 const PM_RATE_LIMIT_WINDOW_MS = 60_000;
 const PM_RATE_LIMIT_MAX_REQUESTS = 12;
+const MAX_RAID_BODY_BYTES = 32 * 1024;
+const ALLOWED_RECORD_COUNTS = [5, 10, 15, 20] as const;
+const ALLOWED_CATEGORIES = ["all", "Risk", "Assumption", "Issue", "Dependency"] as const;
+const ALLOWED_DEPTHS = ["Standard", "Detailed"] as const;
+const SHORT_FIELD_MAX = 200;
+const LONG_FIELD_MAX = 3000;
 
 interface RawAIAssessmentItem {
   id?: string;
@@ -42,11 +55,12 @@ interface RawAIAssessmentItem {
 
 export async function POST(req: NextRequest) {
   try {
+    if (!isSameSiteRequest(req)) {
+      return forbiddenResponse("success");
+    }
+
     // 1. Rate Limiting Check
-    const ip =
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      req.headers.get("x-real-ip") ||
-      "anonymous-pm";
+    const ip = getClientIp(req);
 
     const rateLimit = await applyRateLimit({
       key: `pm-raid-gen:${ip}`,
@@ -70,36 +84,69 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Validate Request Body
-    const body: GenerateRaidRequest = await req.json();
-    const { projectContext, categoryFilter = "all", recordCount = 10, depth = "Standard" } = body;
+    const bodyResult = await readJsonLimited(req, MAX_RAID_BODY_BYTES);
+    if (!bodyResult.ok) {
+      return NextResponse.json(
+        { success: false, error: bodyResult.error },
+        { status: bodyResult.status }
+      );
+    }
+    if (typeof bodyResult.data !== "object" || bodyResult.data === null) {
+      return NextResponse.json(
+        { success: false, error: "Invalid request body." },
+        { status: 400 }
+      );
+    }
 
-    if (!projectContext) {
+    const body = bodyResult.data as Partial<GenerateRaidRequest>;
+    const rawContext = body.projectContext as Record<string, unknown> | undefined;
+
+    if (!rawContext || typeof rawContext !== "object") {
       return NextResponse.json(
         { success: false, error: "Project context is required." },
         { status: 400 }
       );
     }
 
-    const {
-      projectName,
-      projectDescription,
-      projectType,
-      projectObjective,
-      projectPhase,
-      projectManager,
-      projectSponsor,
-      businessUnit,
-      startDate,
-      targetCompletionDate,
-      stakeholders,
-      technologyStack,
-      keyDeliverables,
-      knownChallenges,
-      projectConstraints,
-      additionalContext,
-    } = projectContext;
+    // Only allow known option values, so request fields cannot inject
+    // arbitrary text into the prompt or inflate the requested output size.
+    const categoryFilter = ALLOWED_CATEGORIES.includes(
+      body.categoryFilter as (typeof ALLOWED_CATEGORIES)[number]
+    )
+      ? (body.categoryFilter as "all" | RaidCategory)
+      : "all";
+    const recordCount = ALLOWED_RECORD_COUNTS.includes(
+      body.recordCount as (typeof ALLOWED_RECORD_COUNTS)[number]
+    )
+      ? (body.recordCount as 5 | 10 | 15 | 20)
+      : 10;
+    const depth = ALLOWED_DEPTHS.includes(
+      body.depth as (typeof ALLOWED_DEPTHS)[number]
+    )
+      ? (body.depth as "Standard" | "Detailed")
+      : "Standard";
 
-    if (!projectName?.trim() || !projectDescription?.trim() || !projectObjective?.trim()) {
+    const short = (key: string) => capText(rawContext[key], SHORT_FIELD_MAX);
+    const long = (key: string) => capText(rawContext[key], LONG_FIELD_MAX);
+
+    const projectName = short("projectName");
+    const projectType = short("projectType");
+    const projectPhase = short("projectPhase");
+    const projectManager = short("projectManager");
+    const projectSponsor = short("projectSponsor");
+    const businessUnit = short("businessUnit");
+    const startDate = short("startDate");
+    const targetCompletionDate = short("targetCompletionDate");
+    const projectDescription = long("projectDescription");
+    const projectObjective = long("projectObjective");
+    const stakeholders = long("stakeholders");
+    const technologyStack = long("technologyStack");
+    const keyDeliverables = long("keyDeliverables");
+    const knownChallenges = long("knownChallenges");
+    const projectConstraints = long("projectConstraints");
+    const additionalContext = long("additionalContext");
+
+    if (!projectName || !projectDescription || !projectObjective) {
       return NextResponse.json(
         {
           success: false,
